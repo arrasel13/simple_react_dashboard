@@ -3,6 +3,30 @@ import { Link } from "react-router";
 import { FaUsers } from "react-icons/fa6";
 import { GrTask, GrTasks } from "react-icons/gr";
 import { FaTasks } from "react-icons/fa";
+import Chart from "react-apexcharts";
+
+const options = {
+  chart: {
+    width: 380,
+    type: "pie",
+  },
+  labels: ["Team A", "Team B", "Team C", "Team D", "Team E"],
+  responsive: [
+    {
+      breakpoint: 480,
+      options: {
+        chart: {
+          width: 200,
+        },
+        legend: {
+          position: "bottom",
+        },
+      },
+    },
+  ],
+};
+
+const series = [44, 55, 13, 43, 22];
 
 const Home = () => {
   useEffect(() => {
@@ -162,6 +186,13 @@ const Home = () => {
         </div>
       </div>
       {/* Another one end */}
+
+      {/* Chart start */}
+      <div id="chart">
+        <Chart options={options} series={series} type="pie" width={380} />
+      </div>
+      {/* <div id="html-dist"></div> */}
+      {/* Chart end */}
     </div>
   );
 };
