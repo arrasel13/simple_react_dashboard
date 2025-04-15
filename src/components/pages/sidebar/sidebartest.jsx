@@ -10,11 +10,12 @@ import { FaUsers } from "react-icons/fa6";
 import { BsBarChart } from "react-icons/bs";
 import { NavLink } from "react-router";
 
-const Sidebar = () => {
+const SideBarTest = () => {
   return (
     <>
+      {/* <aside className="w-64 bg-white border-r border-gray-200 h-screen fixed left-0 top-0 z-50 flex flex-col"> */}
       <aside id="sidebar">
-        <div className="sticky top-0 bg-white z-10 px-6 py-[23px] text-xl font-bold tracking-tight text-blue-600">
+        <div className="p-6 text-xl font-bold tracking-tight text-blue-600">
           TailAdmin
         </div>
 
@@ -35,11 +36,11 @@ const Sidebar = () => {
               </li>
               <li>
                 <NavLink
-                  to="/tasks"
+                  to="/calendar"
                   className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100"
                 >
                   <MdOutlineCalendarToday className="text-xl" />
-                  All Tasks
+                  Calendar
                 </NavLink>
               </li>
               <li>
@@ -94,4 +95,4 @@ const Sidebar = () => {
   );
 };
 
-export default Sidebar;
+export default SideBarTest;
