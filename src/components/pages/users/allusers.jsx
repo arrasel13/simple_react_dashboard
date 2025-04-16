@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { FaPlus } from "react-icons/fa6";
 import AddNewUser from "../../utils/modals/addNewUser";
 import { FaUserPlus } from "react-icons/fa6";
+import BreadCrumb from "../common/breadcrumb";
 
 const AllUsers = () => {
   useEffect(() => {
@@ -10,27 +11,10 @@ const AllUsers = () => {
 
   return (
     <div>
-      {/* Breadcrumb start */}
-      {/* <div class="bg-white px-6 py-3 border-b border-gray-200">
-        <nav class="text-sm text-gray-500">
-          <ol class="flex items-center space-x-2">
-            <li>
-              <a href="#" class="text-blue-600 hover:underline">
-                Dashboard
-              </a>
-            </li>
-            <li>
-              <span class="mx-1">/</span>
-              <span class="text-gray-700 font-medium">Analytics</span>
-            </li>
-          </ol>
-        </nav>
-      </div> */}
+      <BreadCrumb bTitle="All Users" bText="All Users" />
 
-      {/* Breadcrumb end */}
-
-      <div className=" mb-5 pb-3 flex justify-between items-center">
-        <h2 className="text-2xl font-bold">All Users</h2>
+      <div className="pb-3 flex justify-between items-center">
+        {/* <h2 className="text-2xl font-bold">All Users</h2> */}
         <button
           className="btn btn-soft btn-primary flex justify-center items-center"
           onClick={() => document.getElementById("add_new_user").showModal()}

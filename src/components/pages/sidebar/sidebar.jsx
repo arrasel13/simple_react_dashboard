@@ -9,6 +9,7 @@ import {
 import { FaUsers } from "react-icons/fa6";
 import { BsBarChart } from "react-icons/bs";
 import { NavLink } from "react-router";
+import { FaTasks } from "react-icons/fa";
 
 const Sidebar = () => {
   return (
@@ -38,7 +39,7 @@ const Sidebar = () => {
                   to="/tasks"
                   className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100"
                 >
-                  <MdOutlineCalendarToday className="text-xl" />
+                  <FaTasks className="text-xl" />
                   All Tasks
                 </NavLink>
               </li>

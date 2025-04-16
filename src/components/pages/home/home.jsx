@@ -35,18 +35,6 @@ const Home = () => {
 
   return (
     <div>
-      {/* Breadcrumb start */}
-      <div class="bg-white px-6 py-3 border-b border-gray-200">
-        <nav class="text-sm text-gray-500">
-          <ol class="flex items-center space-x-2">
-            <li>
-              <span class="text-gray-700 font-medium">Dashboard</span>
-            </li>
-          </ol>
-        </nav>
-      </div>
-      {/* Breadcrumb end */}
-
       {/* <h2>Home Page</h2> */}
 
       {/* Stats start */}
@@ -200,14 +188,16 @@ const Home = () => {
       {/* Another one end */}
 
       {/* Chart start */}
-      <div id="chart">
-        <Chart options={options} series={series} type="pie" width={380} />
-      </div>
-      <div id="chart">
-        <Chart options={options} series={series} type="pie" width={380} />
-      </div>
-      <div id="chart">
-        <Chart options={options} series={series} type="pie" width={380} />
+      <div className="flex ">
+        <div id="chart">
+          <Chart options={options} series={series} type="pie" width={380} />
+        </div>
+        <div id="chart">
+          <Chart options={options} series={series} type="pie" width={380} />
+        </div>
+        <div id="chart">
+          <Chart options={options} series={series} type="pie" width={380} />
+        </div>
       </div>
       {/* <div id="html-dist"></div> */}
       {/* Chart end */}
