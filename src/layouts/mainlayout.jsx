@@ -9,17 +9,21 @@ import "react-toastify/dist/ReactToastify.css";
 const MainLayout = () => {
   return (
     <>
-      <div className="flex h-screen w-full bg-gray-50 text-gray-900">
+      {/* <div className="flex h-screen w-full bg-gray-50 text-gray-900"> */}
+      <div className="min-h-screen xl:flex">
         {/* Sidebar */}
         <Sidebar />
 
         {/* Main content */}
         {/* <div className="flex flex-col flex-1"> */}
-        <div className="flex flex-col flex-1 w-full">
+        {/* <div className="flex flex-col flex-1 w-full"> */}
+        <div className="flex-1 transition-all duration-300 ease-in-out lg:ml-[290px] ">
           <Header />
-          <main className="flex-1 overflow-y-auto p-6">
+          {/* <main className="flex-1 overflow-y-auto p-6"> */}
+          {/* <main className="flex-1 overflow-y-auto py-6 px-12"> */}
+          <div className="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">
             <Outlet />
-          </main>
+          </div>
         </div>
       </div>
 

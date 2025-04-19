@@ -6,6 +6,7 @@ import AllUsers from "../components/pages/users/allusers";
 import WorkUpdate from "../components/pages/workupdate/workupdate";
 import WorkReport from "../components/pages/workreport/workreport";
 import MainLayoutTest from "../layouts/mainlayouttest";
+import Profile from "../components/pages/profile/profile";
 
 const Routers = () => {
   return (
@@ -15,6 +16,7 @@ const Routers = () => {
           <Route path="/" element={<Home />} />
           <Route path="/tasks" element={<TaskLists />} />
           <Route path="/users" element={<AllUsers />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/workupdate" element={<WorkUpdate />} />
           <Route path="/report" element={<WorkReport />} />
         </Route>
