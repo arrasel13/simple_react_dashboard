@@ -132,14 +132,14 @@ const TaskLists = () => {
                 </svg>
               </button>
 
-              <div className="hidden absolute z-40  right-0 mt-2  rounded-xl border border-gray-200 bg-white  shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark absolute right-0 top-full z-40 w-[140px] space-y-1 rounded-2xl border border-gray-200 bg-white p-2 shadow-theme-md dark:border-gray-800 dark:bg-gray-dark">
-                <button className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300">
+              <div className="hidden absolute z-40  right-0 mt-2  rounded-xl border border-gray-200 bg-white  shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark right-0 top-full w-[140px] space-y-1 rounded-2xl border-gray-200 bg-white p-2 shadow-theme-md dark:border-gray-800 dark:bg-gray-dark">
+                <button className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300">
                   Edit
                 </button>
-                <button className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300">
+                <button className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300">
                   Delete
                 </button>
-                <button className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300">
+                <button className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300">
                   Clear All
                 </button>
               </div>
@@ -312,49 +312,10 @@ const TaskLists = () => {
     <>
       <BreadCrumb bTitle="Task List" bText="Task List" />
 
-      {/* name of each tab group should be unique */}
-      {/* <div className="tabs tabs-box">
-        <input
-          type="radio"
-          name="my_tabs_6"
-          className="tab"
-          aria-label="All Task"
-          defaultChecked
-        />
-        <div className="tab-content bg-base-100 border-base-300 p-6">
-          Tab content 1
-        </div>
-
-        <input
-          type="radio"
-          name="my_tabs_6"
-          className="tab"
-          aria-label="Tab 2"
-        />
-        <div className="tab-content bg-base-100 border-base-300 p-6">
-          Tab content 2
-        </div>
-
-        <input
-          type="radio"
-          name="my_tabs_6"
-          className="tab"
-          aria-label="Tab 3"
-        />
-        <div className="tab-content bg-base-100 border-base-300 p-6">
-          Tab content 3
-        </div>
-      </div> */}
-
-      {/* <div className="p-6 bg-gray-50 min-h-screen"> */}
       <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-        {/* <h2 className="text-xl font-bold text-gray-800 mb-6">Task Board</h2> */}
-
-        {/* <div className="mb-6 flex items-center justify-between"> */}
         <div className="flex flex-col items-center px-4 py-5 xl:px-6 xl:py-6">
           <div className="flex flex-col w-full gap-5 sm:justify-between xl:flex-row xl:items-center">
             {/* Tabs */}
-            {/* <div className="flex gap-3"> */}
             <div className="grid grid-cols-2 sm:grid-cols-4 items-center gap-x-1 gap-y-2 rounded-lg bg-gray-100 p-0.5 dark:bg-gray-900">
               {tabs.map((tab) => (
                 <button
@@ -384,19 +345,12 @@ const TaskLists = () => {
             </div>
 
             {/* Filter and Add New Task button */}
-            {/* <div className="flex gap-2"> */}
             <div className="flex flex-wrap items-center gap-3 xl:justify-end">
-              {/* <button className="flex items-center gap-2 btn btn-soft btn-primary text-sm font-medium border rounded-md"> */}
               <button className="inline-flex items-center justify-center gap-2 rounded-lg transition  px-4 py-3 text-sm bg-white text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700 dark:hover:bg-white/[0.03] dark:hover:text-gray-300 cursor-pointer">
                 <FiFilter />
                 Filter & Sort
               </button>
-              {/* <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">
-              <FiPlus />
-              Add New Task
-            </button> */}
               <button
-                // className="flex items-center gap-2 btn btn-soft btn-primary text-sm font-medium border rounded-md"
                 className="inline-flex items-center justify-center gap-2 rounded-lg transition px-4 py-3 text-sm bg-brand-500 text-white shadow-theme-xs hover:bg-brand-600 disabled:bg-brand-300 cursor-pointer"
                 onClick={() =>
                   document.getElementById("add_new_task").showModal()
@@ -410,7 +364,6 @@ const TaskLists = () => {
         </div>
 
         <DragDropContext onDragEnd={handleDragEnd}>
-          {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6"> */}
           <div className="p-4 space-y-8 border-t border-gray-200 mt-7 dark:border-gray-800 sm:mt-0 xl:p-6">
             {Object.entries(taskData).map(([key, list]) =>
               renderTaskList(list, key)
@@ -418,12 +371,11 @@ const TaskLists = () => {
           </div>
         </DragDropContext>
 
-        {/* <dialog id="add_new_task" className="modal"> */}
+        {/* Assign task modal */}
         <dialog
           id="add_new_task"
           className="modal fixed inset-0 flex items-center justify-center overflow-y-auto modal z-99999"
         >
-          {/* <div class="fixed inset-0 h-full w-full bg-gray-400/50 backdrop-blur-[16px]"></div> */}
           <AddNewTask />
         </dialog>
       </div>
