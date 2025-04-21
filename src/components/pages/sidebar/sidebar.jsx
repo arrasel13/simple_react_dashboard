@@ -7,7 +7,7 @@ import {
   MdOutlineEmail,
 } from "react-icons/md";
 import { FaUsers } from "react-icons/fa6";
-import { BsBarChart } from "react-icons/bs";
+import { BsGraphUpArrow, BsPersonWorkspace } from "react-icons/bs";
 import { NavLink } from "react-router";
 import { FaTasks } from "react-icons/fa";
 import siteLogo from "/Wpdeveloper.png";
@@ -58,11 +58,12 @@ const Sidebar = () => {
                   </li>
                   <li>
                     <NavLink
-                      to="/report"
+                      to="/workUpdate"
                       className="menu-item group menu-item-inactive"
                     >
-                      <MdOutlineChat className="text-xl" />
-                      Support Report
+                      {/* <BsGraphUpArrow className="text-xl" /> */}
+                      <BsPersonWorkspace className="text-xl" />
+                      Work Update
                     </NavLink>
                   </li>
 
@@ -84,6 +85,15 @@ const Sidebar = () => {
                 </h2>
 
                 <ul className="flex flex-col gap-4">
+                  <li>
+                    <NavLink
+                      to="/report"
+                      className="menu-item group menu-item-inactive"
+                    >
+                      <BsGraphUpArrow className="text-xl" />
+                      Support Report
+                    </NavLink>
+                  </li>
                   <li>
                     <NavLink
                       to="/users"
