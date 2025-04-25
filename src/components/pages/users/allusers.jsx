@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import AddNewUser from "../../utils/modals/addNewUser";
 import { FaUserPlus } from "react-icons/fa6";
 import BreadCrumb from "../common/breadcrumb";
+import { BsGraphUpArrow } from "react-icons/bs";
+import { Link } from "react-router";
 
 const AllUsers = () => {
   useEffect(() => {
@@ -166,6 +168,12 @@ const AllUsers = () => {
                               ></path>
                             </svg>
                           </button>
+                          <Link
+                            to="/report"
+                            class="text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white/90 cursor-pointer"
+                          >
+                            <BsGraphUpArrow />
+                          </Link>
                         </div>
                       </td>
                     </tr>

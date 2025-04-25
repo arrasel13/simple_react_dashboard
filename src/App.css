@@ -8613,3 +8613,51 @@ span.flatpickr-weekday {
     transform: translateZ(0)
   }
 }
+
+
+/* Customize calendar dropdown */
+.react-datepicker {
+  font-family: 'Inter', sans-serif;
+  /* Replace with your desired font */
+  border: 1px solid #d1d5db;
+  /* Tailwind's gray-300 */
+  background-color: #ffffff;
+  color: #1f2937;
+  /* Tailwind's gray-800 */
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.react-datepicker__header {
+  background-color: #f9fafb;
+  /* Tailwind's gray-50 */
+  border-bottom: 1px solid #e5e7eb;
+  /* gray-200 */
+}
+
+.react-datepicker__day-name,
+.react-datepicker__day,
+.react-datepicker__time-name {
+  color: #111827;
+  /* gray-900 */
+  font-size: 0.875rem;
+  /* text-sm */
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  background-color: #3b82f6;
+  /* blue-500 */
+  color: white;
+}
+
+
+.react-datepicker__day--keyboard-selected:hover {
+  color: white;
+}
+.react-datepicker__day:hover {
+  background-color: #e0f2fe;
+  /* blue-100 */
+  /* color: #1e40af; */
+  /* blue-800 */
+}

@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router";
 
 const SignIn = () => {
-  const [view, setView] = useState("google");
+  const [view, setView] = useState("login");
   const navigate = useNavigate();
 
   return (
