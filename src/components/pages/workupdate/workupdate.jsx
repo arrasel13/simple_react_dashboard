@@ -2,79 +2,46 @@ import React, { useEffect, useState } from "react";
 import BreadCrumb from "../common/breadcrumb";
 import { GrWorkshop } from "react-icons/gr";
 import AddWorkUpdate from "../../utils/modals/addWorkUpdate";
+import { useQuery } from "@tanstack/react-query";
+import useAxiosSecure from "../../../hooks/useaxiossecure";
+import useAuth from "../../../hooks/useauth";
+import { Link } from "react-router";
 
 const WorkUpdate = () => {
+  const { user } = useAuth();
+  const axiosSecure = useAxiosSecure();
   useEffect(() => {
     document.title = "Work Update";
   }, []);
 
-  const tableData = [
-    { name: "Alice", age: 24, email: "alice@example.com" },
-    { name: "Bob", age: 30, email: "bob@example.com" },
-    { name: "Charlie", age: 28, email: "charlie@example.com" },
-    { name: "David", age: 22, email: "david@example.com" },
-    { name: "Eve", age: 35, email: "eve@example.com" },
-    { name: "Frank", age: 29, email: "frank@example.com" },
-    { name: "Grace", age: 26, email: "grace@example.com" },
-    { name: "Heidi", age: 31, email: "heidi@example.com" },
-    { name: "Alice", age: 24, email: "alice@example.com" },
-    { name: "Bob", age: 30, email: "bob@example.com" },
-    { name: "Charlie", age: 28, email: "charlie@example.com" },
-    { name: "David", age: 22, email: "david@example.com" },
-    { name: "Eve", age: 35, email: "eve@example.com" },
-    { name: "Frank", age: 29, email: "frank@example.com" },
-    { name: "Grace", age: 26, email: "grace@example.com" },
-    { name: "Heidi", age: 31, email: "heidi@example.com" },
-    { name: "Alice", age: 24, email: "alice@example.com" },
-    { name: "Bob", age: 30, email: "bob@example.com" },
-    { name: "Charlie", age: 28, email: "charlie@example.com" },
-    { name: "David", age: 22, email: "david@example.com" },
-    { name: "Eve", age: 35, email: "eve@example.com" },
-    { name: "Frank", age: 29, email: "frank@example.com" },
-    { name: "Grace", age: 26, email: "grace@example.com" },
-    { name: "Heidi", age: 31, email: "heidi@example.com" },
-    { name: "Alice", age: 24, email: "alice@example.com" },
-    { name: "Bob", age: 30, email: "bob@example.com" },
-    { name: "Charlie", age: 28, email: "charlie@example.com" },
-    { name: "David", age: 22, email: "david@example.com" },
-    { name: "Eve", age: 35, email: "eve@example.com" },
-    { name: "Frank", age: 29, email: "frank@example.com" },
-    { name: "Grace", age: 26, email: "grace@example.com" },
-    { name: "Heidi", age: 31, email: "heidi@example.com" },
-    { name: "Alice", age: 24, email: "alice@example.com" },
-    { name: "Bob", age: 30, email: "bob@example.com" },
-    { name: "Charlie", age: 28, email: "charlie@example.com" },
-    { name: "David", age: 22, email: "david@example.com" },
-    { name: "Eve", age: 35, email: "eve@example.com" },
-    { name: "Frank", age: 29, email: "frank@example.com" },
-    { name: "Grace", age: 26, email: "grace@example.com" },
-    { name: "Heidi", age: 31, email: "heidi@example.com" },
-    { name: "Alice", age: 24, email: "alice@example.com" },
-    { name: "Bob", age: 30, email: "bob@example.com" },
-    { name: "Charlie", age: 28, email: "charlie@example.com" },
-    { name: "David", age: 22, email: "david@example.com" },
-    { name: "Eve", age: 35, email: "eve@example.com" },
-    { name: "Frank", age: 29, email: "frank@example.com" },
-    { name: "Grace", age: 26, email: "grace@example.com" },
-    { name: "Heidi", age: 31, email: "heidi@example.com" },
-  ];
+  const { data: reports = [], refetch } = useQuery({
+    queryKey: ["reports"],
+    queryFn: async () => {
+      const res = await axiosSecure.get("reports", {
+        params: { email: user.email },
+      });
+      return res.data;
+    },
+  });
+
+  console.log(reports);
 
   const [globalFilter, setGlobalFilter] = useState("");
   const [pageSize, setPageSize] = useState(5);
   const [pageIndex, setPageIndex] = useState(0);
 
-  const filteredData = tableData.filter(
+  const filteredData = reports?.result?.filter(
     (item) =>
-      item.name.toLowerCase().includes(globalFilter.toLowerCase()) ||
-      item.email.toLowerCase().includes(globalFilter.toLowerCase())
+      item.name?.toLowerCase().includes(globalFilter.toLowerCase()) ||
+      item.email?.toLowerCase().includes(globalFilter.toLowerCase())
   );
 
-  const paginatedData = filteredData.slice(
+  const paginatedData = filteredData?.slice(
     pageIndex * pageSize,
     pageIndex * pageSize + pageSize
   );
 
-  const totalPages = Math.ceil(filteredData.length / pageSize);
+  const totalPages = Math.ceil(filteredData?.length / pageSize);
 
   return (
     <>
@@ -134,82 +101,315 @@ const WorkUpdate = () => {
             {/* Header actions */}
 
             {/* Table */}
-            <div className="max-w-full overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200 overflow-hidden">
-                <thead className="px-6 py-3.5 border-t border-gray-100 border-y bg-gray-50 dark:border-white/[0.05] dark:bg-gray-900">
+            <div className="relative max-w-[1340px] mx-auto overflow-x-auto">
+              <table className="min-w-max w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                <thead className="bg-gray-50 dark:bg-gray-900">
                   <tr>
-                    <th className=" px-6 py-3 font-medium text-gray-500 sm:px-6 text-theme-xs dark:text-gray-400 text-start">
-                      #S.N
+                    {/* S.N - sticky left */}
+                    {["admin", "superadmin"].includes(reports.role) && (
+                      <th className="sticky left-0 bg-gray-50 dark:bg-gray-700 px-6 py-3 font-medium text-gray-500 text-theme-xs dark:text-gray-400 text-start">
+                        Name
+                      </th>
+                    )}
+
+                    <th
+                      className={`sticky ${
+                        ["admin", "superadmin"].includes(reports.role)
+                          ? "left-20"
+                          : "left-0"
+                      } bg-gray-50 dark:bg-gray-700 px-6 py-3 font-medium text-gray-500 text-theme-xs dark:text-gray-400 text-start`}
+                    >
+                      Date
                     </th>
-                    <th className=" px-6 py-3 font-medium text-gray-500 sm:px-6 text-theme-xs dark:text-gray-400 text-start">
-                      Image
+
+                    {/* Normal scrollable columns */}
+                    <th className="px-6 py-3">WPDev Tickets Replied</th>
+                    <th className="px-6 py-3">Storeware Tickets Replied</th>
+                    <th className="px-6 py-3">xCloud Tickets Replied</th>
+                    <th className="px-6 py-3">easy.jobs Tickets Replied</th>
+                    <th className="px-6 py-3">Userback Replied</th>
+                    <th className="px-6 py-3">WPDev CRISP Replied</th>
+                    <th className="px-6 py-3">
+                      WPDev CRISP (Magic Browser) Replied
                     </th>
-                    <th className=" px-6 py-3 font-medium text-gray-500 sm:px-6 text-theme-xs dark:text-gray-400 text-start">
-                      Name
+                    <th className="px-6 py-3">Storeware CRISP Replied</th>
+                    <th className="px-6 py-3">
+                      Storeware CRISP (Magic Browser) Replied
                     </th>
-                    <th className=" px-6 py-3 font-medium text-gray-500 sm:px-6 text-theme-xs dark:text-gray-400 text-start">
-                      Email
+                    <th className="px-6 py-3">xCloud CRISP Replied</th>
+                    <th className="px-6 py-3">
+                      xCloud CRISP (Magic Browser) Replied
                     </th>
-                    <th className=" px-6 py-3 font-medium text-gray-500 sm:px-6 text-theme-xs dark:text-gray-400 text-start">
-                      Access Level
-                    </th>
-                    <th className=" px-6 py-3 font-medium text-gray-500 sm:px-6 text-theme-xs dark:text-gray-400 text-start">
+                    <th className="px-6 py-3">WP Org Replied</th>
+                    <th className="px-6 py-3">Facebook Replied</th>
+                    <th className="px-6 py-3">Github Replied</th>
+                    <th className="px-6 py-3">Card Created</th>
+                    <th className="px-6 py-3">Card created Followup</th>
+                    <th className="px-6 py-3">HS Ticket Closed</th>
+                    <th className="px-6 py-3">HS Ticket Followup</th>
+                    <th className="px-6 py-3">Client Checkup Email</th>
+                    <th className="px-6 py-3">Shopify Review Request</th>
+                    <th className="px-6 py-3">Shopify Review Get</th>
+                    <th className="px-6 py-3">Shopify Review Links</th>
+                    <th className="px-6 py-3">WP Plugin Review Get</th>
+                    <th className="px-6 py-3">WP Plugin Review Links</th>
+                    <th className="px-6 py-3">TrustPilot Review Get</th>
+                    <th className="px-6 py-3">TrustPilot Review Links</th>
+                    <th className="px-6 py-3">HS Rating Get</th>
+                    <th className="px-6 py-3">CRISP Rating Get</th>
+                    <th className="px-6 py-3">Notes (others task info)</th>
+
+                    {/* Action - sticky right */}
+                    <th className="sticky right-0 bg-gray-50 dark:bg-gray-700 px-6 py-3 font-medium text-gray-500 text-theme-xs dark:text-gray-400 text-start">
                       Action
                     </th>
                   </tr>
                 </thead>
+
                 <tbody className="divide-y divide-gray-100 bg-white">
-                  {paginatedData.map((row, idx) => (
-                    <tr key={idx} className="hover:bg-gray-50">
-                      <td className=" px-4 sm:px-6 py-3.5">{idx + 1}</td>
-                      <td className=" px-4 sm:px-6 py-3.5">
-                        <div className="flex h-10 w-10 w-10 h-10 items-center justify-center rounded-full bg-error-100 text-error-600">
-                          <span className="text-sm font-medium">JD</span>
-                        </div>
-                      </td>
-                      <td className=" px-4 sm:px-6 py-3.5">{row.name}</td>
-                      <td className=" px-4 sm:px-6 py-3.5">{row.email}</td>
-                      <td className=" px-4 sm:px-6 py-3.5">{row.age}</td>
-                      <td className=" px-4 sm:px-6 py-3.5">
-                        <div className="flex items-center w-full gap-2">
-                          <button className="text-gray-500 hover:text-error-500 dark:text-gray-400 dark:hover:text-error-500 cursor-pointer">
-                            <svg
-                              width="1em"
-                              height="1em"
-                              viewBox="0 0 20 20"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="size-5"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                clipRule="evenodd"
-                                d="M6.54142 3.7915C6.54142 2.54886 7.54878 1.5415 8.79142 1.5415H11.2081C12.4507 1.5415 13.4581 2.54886 13.4581 3.7915V4.0415H15.6252H16.666C17.0802 4.0415 17.416 4.37729 17.416 4.7915C17.416 5.20572 17.0802 5.5415 16.666 5.5415H16.3752V8.24638V13.2464V16.2082C16.3752 17.4508 15.3678 18.4582 14.1252 18.4582H5.87516C4.63252 18.4582 3.62516 17.4508 3.62516 16.2082V13.2464V8.24638V5.5415H3.3335C2.91928 5.5415 2.5835 5.20572 2.5835 4.7915C2.5835 4.37729 2.91928 4.0415 3.3335 4.0415H4.37516H6.54142V3.7915ZM14.8752 13.2464V8.24638V5.5415H13.4581H12.7081H7.29142H6.54142H5.12516V8.24638V13.2464V16.2082C5.12516 16.6224 5.46095 16.9582 5.87516 16.9582H14.1252C14.5394 16.9582 14.8752 16.6224 14.8752 16.2082V13.2464ZM8.04142 4.0415H11.9581V3.7915C11.9581 3.37729 11.6223 3.0415 11.2081 3.0415H8.79142C8.37721 3.0415 8.04142 3.37729 8.04142 3.7915V4.0415ZM8.3335 7.99984C8.74771 7.99984 9.0835 8.33562 9.0835 8.74984V13.7498C9.0835 14.1641 8.74771 14.4998 8.3335 14.4998C7.91928 14.4998 7.5835 14.1641 7.5835 13.7498V8.74984C7.5835 8.33562 7.91928 7.99984 8.3335 7.99984ZM12.4168 8.74984C12.4168 8.33562 12.081 7.99984 11.6668 7.99984C11.2526 7.99984 10.9168 8.33562 10.9168 8.74984V13.7498C10.9168 14.1641 11.2526 14.4998 11.6668 14.4998C12.081 14.4998 12.4168 14.1641 12.4168 13.7498V8.74984Z"
-                                fill="currentColor"
-                              ></path>
-                            </svg>
-                          </button>
-                          <button className="text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white/90 cursor-pointer">
-                            <svg
-                              width="1em"
-                              height="1em"
-                              viewBox="0 0 21 21"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="size-5"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                clipRule="evenodd"
-                                d="M17.0911 3.53206C16.2124 2.65338 14.7878 2.65338 13.9091 3.53206L5.6074 11.8337C5.29899 12.1421 5.08687 12.5335 4.99684 12.9603L4.26177 16.445C4.20943 16.6931 4.286 16.9508 4.46529 17.1301C4.64458 17.3094 4.90232 17.3859 5.15042 17.3336L8.63507 16.5985C9.06184 16.5085 9.45324 16.2964 9.76165 15.988L18.0633 7.68631C18.942 6.80763 18.942 5.38301 18.0633 4.50433L17.0911 3.53206ZM14.9697 4.59272C15.2626 4.29982 15.7375 4.29982 16.0304 4.59272L17.0027 5.56499C17.2956 5.85788 17.2956 6.33276 17.0027 6.62565L16.1043 7.52402L14.0714 5.49109L14.9697 4.59272ZM13.0107 6.55175L6.66806 12.8944C6.56526 12.9972 6.49455 13.1277 6.46454 13.2699L5.96704 15.6283L8.32547 15.1308C8.46772 15.1008 8.59819 15.0301 8.70099 14.9273L15.0436 8.58468L13.0107 6.55175Z"
-                                fill="currentColor"
-                              ></path>
-                            </svg>
-                          </button>
-                        </div>
+                  {paginatedData?.length > 0 ? (
+                    paginatedData.map((row, idx) => (
+                      <tr key={idx} className="hover:bg-gray-50">
+                        {["admin", "superadmin"].includes(reports.role) && (
+                          <td className="sticky left-0 bg-white dark:bg-gray-900 px-4 sm:px-6 py-3.5">
+                            {row.name}
+                          </td>
+                        )}
+                        <td
+                          className={`sticky ${
+                            ["admin", "superadmin"].includes(reports.role)
+                              ? "left-20"
+                              : "left-0"
+                          } bg-white dark:bg-gray-900 px-4 sm:px-6 py-3.5`}
+                        >
+                          {row.report_date}
+                        </td>
+
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.wpdev_ticket_reply}
+                        </td>
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.storeware_crisp_reply}
+                        </td>
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.xcloud_ticket_reply}
+                        </td>
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.easyjobs_ticket_reply}
+                        </td>
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.userback_reply}
+                        </td>
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.wpdev_crisp_reply}
+                        </td>
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.wpdev_crisp_magic_browser_reply}
+                        </td>
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.storeware_crisp_reply}
+                        </td>
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.storeware_crisp_magic_browser_reply}
+                        </td>
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.xcloud_crisp_reply}
+                        </td>
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.xcloud_crisp_magic_browser_reply}
+                        </td>
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.wp_org_reply}
+                        </td>
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.fb_post_reply}
+                        </td>
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.github_reply}
+                        </td>
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.client_issue_card}
+                        </td>
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.client_issue_card_followup}
+                        </td>
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.hs_ticket_close}
+                        </td>
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.hs_ticket_followup}
+                        </td>
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.bulk_client_email}
+                        </td>
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.shopify_app_review}
+                        </td>
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.shopify_app_review_get}
+                        </td>
+
+                        <td className="w-[220px] px-4 sm:px-6 py-3.5">
+                          {row.shopify_app_review_links ? (
+                            row.shopify_app_review_links
+                              .split(",")
+                              .map((review, index) => (
+                                <a
+                                  key={index}
+                                  href={review.trim()}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="block text-blue-600 underline"
+                                >
+                                  {review.trim()}
+                                </a>
+                              ))
+                          ) : (
+                            <span className="text-gray-400">
+                              No Review links
+                            </span>
+                          )}
+                        </td>
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.wporg_review_get}
+                        </td>
+                        <td className="w-[220px] px-4 sm:px-6 py-3.5">
+                          {row.wporg_review_links ? (
+                            row.wporg_review_links
+                              .split(",")
+                              .map((review, index) => (
+                                <Link
+                                  key={index}
+                                  to={review.trim()}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="block text-blue-600 underline"
+                                >
+                                  {review.trim()}
+                                </Link>
+                              ))
+                          ) : (
+                            <span className="text-gray-400">
+                              No Review links
+                            </span>
+                          )}
+                        </td>
+
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.trustpilot_review_get}
+                        </td>
+                        <td className="w-[220px] px-4 sm:px-6 py-3.5">
+                          {row.trustpilot_review_links ? (
+                            row.trustpilot_review_links
+                              .split(",")
+                              .map((review, index) => (
+                                <Link
+                                  key={index}
+                                  to={review.trim()}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="block text-blue-600 underline"
+                                >
+                                  {review.trim()}
+                                </Link>
+                              ))
+                          ) : (
+                            <span className="text-gray-400">
+                              No Review links
+                            </span>
+                          )}
+                        </td>
+
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.hs_ratings}
+                        </td>
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.crisp_ratings}
+                        </td>
+                        <td className="w-[350px] px-4 sm:px-6 py-3.5">
+                          {row.additional_notes}
+                        </td>
+                        <td className="sticky right-0 bg-white dark:bg-gray-900 px-4 sm:px-6 py-3.5">
+                          <div className="flex items-center w-full gap-2">
+                            <button className="text-gray-500 hover:text-error-500 dark:text-gray-400 dark:hover:text-error-500 cursor-pointer">
+                              <svg
+                                width="1em"
+                                height="1em"
+                                viewBox="0 0 20 20"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="size-5"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  clipRule="evenodd"
+                                  d="M6.54142 3.7915C6.54142 2.54886 7.54878 1.5415 8.79142 1.5415H11.2081C12.4507 1.5415 13.4581 2.54886 13.4581 3.7915V4.0415H15.6252H16.666C17.0802 4.0415 17.416 4.37729 17.416 4.7915C17.416 5.20572 17.0802 5.5415 16.666 5.5415H16.3752V8.24638V13.2464V16.2082C16.3752 17.4508 15.3678 18.4582 14.1252 18.4582H5.87516C4.63252 18.4582 3.62516 17.4508 3.62516 16.2082V13.2464V8.24638V5.5415H3.3335C2.91928 5.5415 2.5835 5.20572 2.5835 4.7915C2.5835 4.37729 2.91928 4.0415 3.3335 4.0415H4.37516H6.54142V3.7915ZM14.8752 13.2464V8.24638V5.5415H13.4581H12.7081H7.29142H6.54142H5.12516V8.24638V13.2464V16.2082C5.12516 16.6224 5.46095 16.9582 5.87516 16.9582H14.1252C14.5394 16.9582 14.8752 16.6224 14.8752 16.2082V13.2464ZM8.04142 4.0415H11.9581V3.7915C11.9581 3.37729 11.6223 3.0415 11.2081 3.0415H8.79142C8.37721 3.0415 8.04142 3.37729 8.04142 3.7915V4.0415ZM8.3335 7.99984C8.74771 7.99984 9.0835 8.33562 9.0835 8.74984V13.7498C9.0835 14.1641 8.74771 14.4998 8.3335 14.4998C7.91928 14.4998 7.5835 14.1641 7.5835 13.7498V8.74984C7.5835 8.33562 7.91928 7.99984 8.3335 7.99984ZM12.4168 8.74984C12.4168 8.33562 12.081 7.99984 11.6668 7.99984C11.2526 7.99984 10.9168 8.33562 10.9168 8.74984V13.7498C10.9168 14.1641 11.2526 14.4998 11.6668 14.4998C12.081 14.4998 12.4168 14.1641 12.4168 13.7498V8.74984Z"
+                                  fill="currentColor"
+                                ></path>
+                              </svg>
+                            </button>
+                            <button className="text-gray-500 hover:text-error-500 dark:text-gray-400 dark:hover:text-error-500 cursor-pointer">
+                              <svg
+                                width="1em"
+                                height="1em"
+                                viewBox="0 0 20 20"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="size-5"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  clipRule="evenodd"
+                                  d="M6.54142 3.7915C6.54142 2.54886 7.54878 1.5415 8.79142 1.5415H11.2081C12.4507 1.5415 13.4581 2.54886 13.4581 3.7915V4.0415H15.6252H16.666C17.0802 4.0415 17.416 4.37729 17.416 4.7915C17.416 5.20572 17.0802 5.5415 16.666 5.5415H16.3752V8.24638V13.2464V16.2082C16.3752 17.4508 15.3678 18.4582 14.1252 18.4582H5.87516C4.63252 18.4582 3.62516 17.4508 3.62516 16.2082V13.2464V8.24638V5.5415H3.3335C2.91928 5.5415 2.5835 5.20572 2.5835 4.7915C2.5835 4.37729 2.91928 4.0415 3.3335 4.0415H4.37516H6.54142V3.7915ZM14.8752 13.2464V8.24638V5.5415H13.4581H12.7081H7.29142H6.54142H5.12516V8.24638V13.2464V16.2082C5.12516 16.6224 5.46095 16.9582 5.87516 16.9582H14.1252C14.5394 16.9582 14.8752 16.6224 14.8752 16.2082V13.2464ZM8.04142 4.0415H11.9581V3.7915C11.9581 3.37729 11.6223 3.0415 11.2081 3.0415H8.79142C8.37721 3.0415 8.04142 3.37729 8.04142 3.7915V4.0415ZM8.3335 7.99984C8.74771 7.99984 9.0835 8.33562 9.0835 8.74984V13.7498C9.0835 14.1641 8.74771 14.4998 8.3335 14.4998C7.91928 14.4998 7.5835 14.1641 7.5835 13.7498V8.74984C7.5835 8.33562 7.91928 7.99984 8.3335 7.99984ZM12.4168 8.74984C12.4168 8.33562 12.081 7.99984 11.6668 7.99984C11.2526 7.99984 10.9168 8.33562 10.9168 8.74984V13.7498C10.9168 14.1641 11.2526 14.4998 11.6668 14.4998C12.081 14.4998 12.4168 14.1641 12.4168 13.7498V8.74984Z"
+                                  fill="currentColor"
+                                ></path>
+                              </svg>
+                            </button>
+                            <button className="text-gray-500 hover:text-error-500 dark:text-gray-400 dark:hover:text-error-500 cursor-pointer">
+                              <svg
+                                width="1em"
+                                height="1em"
+                                viewBox="0 0 20 20"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="size-5"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  clipRule="evenodd"
+                                  d="M6.54142 3.7915C6.54142 2.54886 7.54878 1.5415 8.79142 1.5415H11.2081C12.4507 1.5415 13.4581 2.54886 13.4581 3.7915V4.0415H15.6252H16.666C17.0802 4.0415 17.416 4.37729 17.416 4.7915C17.416 5.20572 17.0802 5.5415 16.666 5.5415H16.3752V8.24638V13.2464V16.2082C16.3752 17.4508 15.3678 18.4582 14.1252 18.4582H5.87516C4.63252 18.4582 3.62516 17.4508 3.62516 16.2082V13.2464V8.24638V5.5415H3.3335C2.91928 5.5415 2.5835 5.20572 2.5835 4.7915C2.5835 4.37729 2.91928 4.0415 3.3335 4.0415H4.37516H6.54142V3.7915ZM14.8752 13.2464V8.24638V5.5415H13.4581H12.7081H7.29142H6.54142H5.12516V8.24638V13.2464V16.2082C5.12516 16.6224 5.46095 16.9582 5.87516 16.9582H14.1252C14.5394 16.9582 14.8752 16.6224 14.8752 16.2082V13.2464ZM8.04142 4.0415H11.9581V3.7915C11.9581 3.37729 11.6223 3.0415 11.2081 3.0415H8.79142C8.37721 3.0415 8.04142 3.37729 8.04142 3.7915V4.0415ZM8.3335 7.99984C8.74771 7.99984 9.0835 8.33562 9.0835 8.74984V13.7498C9.0835 14.1641 8.74771 14.4998 8.3335 14.4998C7.91928 14.4998 7.5835 14.1641 7.5835 13.7498V8.74984C7.5835 8.33562 7.91928 7.99984 8.3335 7.99984ZM12.4168 8.74984C12.4168 8.33562 12.081 7.99984 11.6668 7.99984C11.2526 7.99984 10.9168 8.33562 10.9168 8.74984V13.7498C10.9168 14.1641 11.2526 14.4998 11.6668 14.4998C12.081 14.4998 12.4168 14.1641 12.4168 13.7498V8.74984Z"
+                                  fill="currentColor"
+                                ></path>
+                              </svg>
+                            </button>
+                            <button className="text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white/90 cursor-pointer">
+                              <svg
+                                width="1em"
+                                height="1em"
+                                viewBox="0 0 21 21"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="size-5"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  clipRule="evenodd"
+                                  d="M17.0911 3.53206C16.2124 2.65338 14.7878 2.65338 13.9091 3.53206L5.6074 11.8337C5.29899 12.1421 5.08687 12.5335 4.99684 12.9603L4.26177 16.445C4.20943 16.6931 4.286 16.9508 4.46529 17.1301C4.64458 17.3094 4.90232 17.3859 5.15042 17.3336L8.63507 16.5985C9.06184 16.5085 9.45324 16.2964 9.76165 15.988L18.0633 7.68631C18.942 6.80763 18.942 5.38301 18.0633 4.50433L17.0911 3.53206ZM14.9697 4.59272C15.2626 4.29982 15.7375 4.29982 16.0304 4.59272L17.0027 5.56499C17.2956 5.85788 17.2956 6.33276 17.0027 6.62565L16.1043 7.52402L14.0714 5.49109L14.9697 4.59272ZM13.0107 6.55175L6.66806 12.8944C6.56526 12.9972 6.49455 13.1277 6.46454 13.2699L5.96704 15.6283L8.32547 15.1308C8.46772 15.1008 8.59819 15.0301 8.70099 14.9273L15.0436 8.58468L13.0107 6.55175Z"
+                                  fill="currentColor"
+                                ></path>
+                              </svg>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="32" className="px-4 sm:px-6 py-3.5">
+                        No Work Update Data found
                       </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             </div>
@@ -263,7 +463,7 @@ const WorkUpdate = () => {
         id="add_work_update"
         className="modal fixed inset-0 flex items-center justify-center overflow-y-auto modal z-99999"
       >
-        <AddWorkUpdate />
+        <AddWorkUpdate refetch={refetch} />
       </dialog>
     </>
   );

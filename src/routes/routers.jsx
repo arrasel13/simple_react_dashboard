@@ -9,21 +9,48 @@ import Profile from "../components/pages/profile/profile";
 import SignIn from "../components/pages/authentication/signin";
 import SupportReport from "../components/pages/workreport/supportReport";
 import ErrorNotFound from "../components/pages/errorpage/404";
+import PrivateRoute from "./privateroute";
+import AdminRoute from "./adminroute";
 
 const Routers = () => {
   return (
     <>
       <Routes>
-        <Route element={<MainLayout />}>
+        <Route path="/signin" element={<SignIn />} />
+
+        <Route
+          element={
+            <PrivateRoute>
+              <MainLayout />
+            </PrivateRoute>
+          }
+        >
           <Route path="/" element={<Home />} />
           <Route path="/tasks" element={<TaskLists />} />
-          <Route path="/users" element={<AllUsers />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/report" element={<SupportReport />} />
-          {/* <Route path="/report" element={<WorkReport />} /> */}
           <Route path="/workUpdate" element={<WorkUpdate />} />
+          <Route path="/profile" element={<Profile />} />
+          {/* <Route path="/users" element={<AllUsers />} />
+          <Route path="/report" element={<SupportReport />} /> */}
+          <Route
+            path="/users"
+            element={
+              <AdminRoute>
+                <AllUsers />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/report"
+            element={
+              <AdminRoute>
+                <SupportReport />
+              </AdminRoute>
+            }
+          />
+          {/* <Route path="/report" element={<WorkReport />} /> */}
         </Route>
-        <Route path="/signin" element={<SignIn />} />
+
+        {/* 404 page */}
         <Route path="*" element={<ErrorNotFound />} />
       </Routes>
     </>

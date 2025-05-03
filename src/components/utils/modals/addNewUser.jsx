@@ -1,13 +1,27 @@
 import React, { useState } from "react";
+import md5 from "crypto-js/md5";
 import { FaRegEyeSlash, FaRegEye } from "react-icons/fa";
 import { useForm } from "react-hook-form";
+import useAuth from "../../../hooks/useauth";
+import useAxiosSecure from "../../../hooks/useaxiossecure";
+import useAxiosPublic from "../../../hooks/useaxiospublic";
+import { showToast } from "../toasters/toastService";
 
-const AddNewUser = () => {
+const image_hosting_key = import.meta.env.VITE_WPDEV_imgbb_key;
+const image_hosting_api = `https://api.imgbb.com/1/upload?key=${image_hosting_key}`;
+
+const AddNewUser = ({ refetch }) => {
+  const { createUser, updateCreatedUserProfile, secondayAuthLogout } =
+    useAuth();
+  const axiosPublic = useAxiosPublic();
+  const axiosSecure = useAxiosSecure();
   const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
     handleSubmit,
+    reset,
+    watch,
     formState: { errors, isSubmitted },
   } = useForm();
 
@@ -15,13 +29,63 @@ const AddNewUser = () => {
     document.getElementById("add_new_user")?.close();
   };
 
-  const onSubmit = (data) => {
-    console.log(data);
+  const onSubmit = async (data) => {
+    createUser(data.email, data.password)
+      .then(async (result) => {
+        const user = result.user;
+
+        let imageFile;
+        const selectImage = data.image;
+        if (selectImage.length === 0) {
+          console.log("Image file not selected");
+          const emailHash = md5(data.email.trim().toLowerCase()).toString();
+          imageFile = `https://www.gravatar.com/avatar/${emailHash}?d=identicon`;
+          console.log("Image from gravater", imageFile);
+        } else {
+          const uploadedImg = { image: data.image[0] };
+          console.log("Uploaded Image file", uploadedImg);
+          const res = await axiosPublic.post(image_hosting_api, uploadedImg, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          });
+          if (res.data.success) {
+            imageFile = res.data.data.display_url;
+          }
+        }
+
+        updateCreatedUserProfile(data.nickname, imageFile).then((res) => {
+          console.log("Inside user update profile", res);
+          const userInfo = {
+            name: data.nickname,
+            email: data.email,
+            role: data.role,
+            image: imageFile,
+          };
+          console.log("user info from user update profile", userInfo);
+          axiosSecure.post("/users", userInfo).then((res) => {
+            console.log("From update User Profile: ", res.data);
+            if (res.data.insertedId) {
+              console.log("User added to the database");
+              reset();
+              closeModal();
+              secondayAuthLogout();
+              showToast("success", "User Added successfully", {
+                icon: "🎉",
+              });
+              refetch();
+            }
+          });
+        });
+      })
+      .catch((error) => {
+        console.log(error.message);
+      });
   };
 
   return (
     <>
-      <div class="fixed inset-0 h-full w-full bg-gray-400/60 "></div>
+      <div className="fixed inset-0 h-full w-full bg-gray-400/60 "></div>
       <div className="modal-box w-full max-w-lg">
         <h3 className="font-bold text-lg">Add New User</h3>
 
@@ -29,7 +93,7 @@ const AddNewUser = () => {
           <form
             className="flex flex-col w-full"
             method="dialog"
-            enctype="multipart/form-data"
+            // encType="multipart/form-data"
             onSubmit={handleSubmit(onSubmit)}
           >
             <div className="custom-scrollbar h-[450px] overflow-y-auto px-2">
@@ -199,7 +263,7 @@ const AddNewUser = () => {
                     <input
                       {...register("image")}
                       type="file"
-                      class="h-11 w-full file-input file-input-md appearance-none shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3  dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30  bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700 dark:text-white/90  dark:focus:border-brand-800"
+                      className="h-11 w-full file-input file-input-md appearance-none shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3  dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30  bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700 dark:text-white/90  dark:focus:border-brand-800"
                     />
                   </div>
                 </div>

@@ -4,8 +4,13 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { format } from "date-fns";
 import { FaRegCalendarAlt } from "react-icons/fa";
+import useAuth from "../../../hooks/useauth";
+import useAxiosSecure from "../../../hooks/useaxiossecure";
+import { showToast } from "../toasters/toastService";
 
-const AddWorkUpdate = () => {
+const AddWorkUpdate = ({ refetch }) => {
+  const { user } = useAuth();
+  const axiosSecure = useAxiosSecure();
   const [shopifyReview, setShopifyReview] = useState("0");
   const [wpPluginReview, setWpPluginReview] = useState("0");
   const [trustPilotReview, setTrustPilotReview] = useState("0");
@@ -13,6 +18,7 @@ const AddWorkUpdate = () => {
     control,
     register,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitted },
   } = useForm();
 
@@ -20,13 +26,27 @@ const AddWorkUpdate = () => {
     document.getElementById("add_work_update")?.close();
   };
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     const formatted = data.report_date
       ? format(data.report_date, "dd-MM-yyyy")
       : "";
-    const newData = { ...data, report_date: formatted };
-    closeModal();
-    console.log(newData);
+    const reportData = {
+      ...data,
+      report_date: formatted,
+      email: user.email,
+      name: user.displayName,
+    };
+
+    const reportRes = await axiosSecure.post("/addreports", reportData);
+    console.log(reportRes.data);
+
+    if (reportRes.data.insertedId) {
+      reset();
+      closeModal();
+      refetch();
+      showToast("success", "Work Report successfully added", { icon: "🎉" });
+    }
+
     // console.log(data);
   };
 
@@ -89,6 +109,7 @@ const AddWorkUpdate = () => {
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                     How many WPDeveloper Tickets have you replied today?
+                    <span className="text-red-600 ml-1">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -101,6 +122,8 @@ const AddWorkUpdate = () => {
                       }
                       className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3  dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30  bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700 dark:text-white/90  dark:focus:border-brand-800"
                       type="number"
+                      onWheel={(e) => e.target.blur()}
+                      min="0"
                     />
                   </div>
                   {errors.wpdev_ticket_reply?.type === "required" && (
@@ -126,6 +149,8 @@ const AddWorkUpdate = () => {
                       }
                       className=" h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3  dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30  bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700 dark:text-white/90  dark:focus:border-brand-800"
                       type="number"
+                      onWheel={(e) => e.target.blur()}
+                      min="0"
                     />
                   </div>
                   {errors.storeware_ticket_reply?.type === "required" && (
@@ -151,6 +176,8 @@ const AddWorkUpdate = () => {
                       }
                       className=" h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3  dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30  bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700 dark:text-white/90  dark:focus:border-brand-800"
                       type="number"
+                      onWheel={(e) => e.target.blur()}
+                      min="0"
                     />
                   </div>
                   {errors.xcloud_ticket_reply?.type === "required" && (
@@ -176,6 +203,8 @@ const AddWorkUpdate = () => {
                       }
                       className=" h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3  dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30  bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700 dark:text-white/90  dark:focus:border-brand-800"
                       type="number"
+                      onWheel={(e) => e.target.blur()}
+                      min="0"
                     />
                   </div>
                   {errors.easyjobs_ticket_reply?.type === "required" && (
@@ -197,6 +226,8 @@ const AddWorkUpdate = () => {
                       aria-invalid={errors.userback_reply ? "true" : "false"}
                       className=" h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3  dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30  bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700 dark:text-white/90  dark:focus:border-brand-800"
                       type="number"
+                      onWheel={(e) => e.target.blur()}
+                      min="0"
                     />
                   </div>
                   {errors.userback_reply?.type === "required" && (
@@ -218,6 +249,8 @@ const AddWorkUpdate = () => {
                       aria-invalid={errors.wpdev_crisp_reply ? "true" : "false"}
                       className=" h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3  dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30  bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700 dark:text-white/90  dark:focus:border-brand-800"
                       type="number"
+                      onWheel={(e) => e.target.blur()}
+                      min="0"
                     />
                   </div>
                   {errors.wpdev_crisp_reply?.type === "required" && (
@@ -246,6 +279,8 @@ const AddWorkUpdate = () => {
                       }
                       className=" h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3  dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30  bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700 dark:text-white/90  dark:focus:border-brand-800"
                       type="number"
+                      onWheel={(e) => e.target.blur()}
+                      min="0"
                     />
                   </div>
                   {errors.wpdev_crisp_magic_browser_reply?.type ===
@@ -272,6 +307,8 @@ const AddWorkUpdate = () => {
                       }
                       className=" h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3  dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30  bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700 dark:text-white/90  dark:focus:border-brand-800"
                       type="number"
+                      onWheel={(e) => e.target.blur()}
+                      min="0"
                     />
                   </div>
                   {errors.storeware_crisp_reply?.type === "required" && (
@@ -300,6 +337,8 @@ const AddWorkUpdate = () => {
                       }
                       className=" h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3  dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30  bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700 dark:text-white/90  dark:focus:border-brand-800"
                       type="number"
+                      onWheel={(e) => e.target.blur()}
+                      min="0"
                     />
                   </div>
                   {errors.storeware_crisp_magic_browser_reply?.type ===
@@ -326,6 +365,8 @@ const AddWorkUpdate = () => {
                       }
                       className=" h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3  dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30  bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700 dark:text-white/90  dark:focus:border-brand-800"
                       type="number"
+                      onWheel={(e) => e.target.blur()}
+                      min="0"
                     />
                   </div>
                   {errors.xcloud_crisp_reply?.type === "required" && (
@@ -354,6 +395,8 @@ const AddWorkUpdate = () => {
                       }
                       className=" h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3  dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30  bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700 dark:text-white/90  dark:focus:border-brand-800"
                       type="number"
+                      onWheel={(e) => e.target.blur()}
+                      min="0"
                     />
                   </div>
                   {errors.xcloud_crisp_magic_browser_reply?.type ===
@@ -378,6 +421,8 @@ const AddWorkUpdate = () => {
                       aria-invalid={errors.wp_org_reply ? "true" : "false"}
                       className=" h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3  dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30  bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700 dark:text-white/90  dark:focus:border-brand-800"
                       type="number"
+                      onWheel={(e) => e.target.blur()}
+                      min="0"
                     />
                   </div>
                   {errors.wp_org_reply?.type === "required" && (
@@ -401,6 +446,8 @@ const AddWorkUpdate = () => {
                       aria-invalid={errors.fb_post_reply ? "true" : "false"}
                       className=" h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3  dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30  bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700 dark:text-white/90  dark:focus:border-brand-800"
                       type="number"
+                      onWheel={(e) => e.target.blur()}
+                      min="0"
                     />
                   </div>
                   {errors.fb_post_reply?.type === "required" && (
@@ -424,6 +471,8 @@ const AddWorkUpdate = () => {
                       aria-invalid={errors.github_reply ? "true" : "false"}
                       className=" h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3  dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30  bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700 dark:text-white/90  dark:focus:border-brand-800"
                       type="number"
+                      onWheel={(e) => e.target.blur()}
+                      min="0"
                     />
                   </div>
                   {errors.github_reply?.type === "required" && (
@@ -448,6 +497,8 @@ const AddWorkUpdate = () => {
                       aria-invalid={errors.client_issue_card ? "true" : "false"}
                       className=" h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3  dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30  bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700 dark:text-white/90  dark:focus:border-brand-800"
                       type="number"
+                      onWheel={(e) => e.target.blur()}
+                      min="0"
                     />
                   </div>
                   {errors.client_issue_card?.type === "required" && (
@@ -474,6 +525,8 @@ const AddWorkUpdate = () => {
                       }
                       className=" h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3  dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30  bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700 dark:text-white/90  dark:focus:border-brand-800"
                       type="number"
+                      onWheel={(e) => e.target.blur()}
+                      min="0"
                     />
                   </div>
                   {errors.client_issue_card_followup?.type === "required" && (
@@ -497,6 +550,8 @@ const AddWorkUpdate = () => {
                       aria-invalid={errors.hs_ticket_close ? "true" : "false"}
                       className=" h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3  dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30  bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700 dark:text-white/90  dark:focus:border-brand-800"
                       type="number"
+                      onWheel={(e) => e.target.blur()}
+                      min="0"
                     />
                   </div>
                   {errors.hs_ticket_close?.type === "required" && (
@@ -522,6 +577,8 @@ const AddWorkUpdate = () => {
                       }
                       className=" h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3  dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30  bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700 dark:text-white/90  dark:focus:border-brand-800"
                       type="number"
+                      onWheel={(e) => e.target.blur()}
+                      min="0"
                     />
                   </div>
                   {errors.hs_ticket_followup?.type === "required" && (
@@ -545,6 +602,8 @@ const AddWorkUpdate = () => {
                       aria-invalid={errors.bulk_client_email ? "true" : "false"}
                       className=" h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3  dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30  bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700 dark:text-white/90  dark:focus:border-brand-800"
                       type="number"
+                      onWheel={(e) => e.target.blur()}
+                      min="0"
                     />
                   </div>
                   {errors.bulk_client_email?.type === "required" && (
@@ -570,6 +629,8 @@ const AddWorkUpdate = () => {
                       }
                       className=" h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3  dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30  bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700 dark:text-white/90  dark:focus:border-brand-800"
                       type="number"
+                      onWheel={(e) => e.target.blur()}
+                      min="0"
                     />
                   </div>
                   {errors.shopify_app_review?.type === "required" && (
@@ -989,6 +1050,8 @@ const AddWorkUpdate = () => {
                       aria-invalid={errors.hs_ratings ? "true" : "false"}
                       className=" h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3  dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30  bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700 dark:text-white/90  dark:focus:border-brand-800"
                       type="number"
+                      onWheel={(e) => e.target.blur()}
+                      min="0"
                     />
                   </div>
                   {errors.hs_ratings?.type === "required" && (
@@ -1012,6 +1075,8 @@ const AddWorkUpdate = () => {
                       aria-invalid={errors.crisp_ratings ? "true" : "false"}
                       className=" h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3  dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30  bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700 dark:text-white/90  dark:focus:border-brand-800"
                       type="number"
+                      onWheel={(e) => e.target.blur()}
+                      min="0"
                     />
                   </div>
                   {errors.crisp_ratings?.type === "required" && (
@@ -1048,7 +1113,7 @@ const AddWorkUpdate = () => {
                   Cancel
                 </button>
                 <button
-                  // type="button"
+                  type="submit"
                   className="btn flex w-full justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 sm:w-auto"
                 >
                   Add Work Update

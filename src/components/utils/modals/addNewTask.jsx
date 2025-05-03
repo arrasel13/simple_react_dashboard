@@ -328,13 +328,13 @@ const AddNewTask = () => {
               </div>
               <div className="flex items-center w-full gap-3 sm:w-auto">
                 <button
-                  // type="button"
+                  type="button"
                   className="btn flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] sm:w-auto"
                 >
                   Cancel
                 </button>
                 <button
-                  type="button"
+                  type="submit"
                   className="btn flex w-full justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 sm:w-auto"
                 >
                   Create Task
@@ -342,9 +342,6 @@ const AddNewTask = () => {
               </div>
             </div>
           </form>
-          {/* <form method="dialog">
-            <button className="btn">Close</button>
-          </form> */}
         </div>
       </div>
     </>

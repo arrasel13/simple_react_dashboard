@@ -4,89 +4,122 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import ReactApexChart from "react-apexcharts";
 import { TiArrowBack } from "react-icons/ti";
+import { useQuery } from "@tanstack/react-query";
+import useAxiosSecure from "../../../hooks/useaxiossecure";
+import useAuth from "../../../hooks/useauth";
 
-const reportData = [
-  {
-    month: "January",
-    shopifyRequest: 16,
-    shopifyReceived: 4,
-    orgReviews: 3,
-    wpTickets: 237,
-    storewareTickets: 0,
-    xcloudTickets: 4,
-    wpCrisp: 358,
-    storewareCrisp: 91,
-    magicBrowser: 27,
-    xcloudCrisp: 8,
-    wpOrg: 2,
-    facebook: 0,
-    closed: 34,
-  },
-  {
-    month: "February",
-    shopifyRequest: 33,
-    shopifyReceived: 11,
-    orgReviews: 17,
-    wpTickets: 191,
-    storewareTickets: 0,
-    xcloudTickets: 1,
-    wpCrisp: 388,
-    storewareCrisp: 127,
-    magicBrowser: 18,
-    xcloudCrisp: 15,
-    wpOrg: 14,
-    facebook: 0,
-    closed: 16,
-  },
-  {
-    month: "March",
-    shopifyRequest: 3,
-    shopifyReceived: 2,
-    orgReviews: 9,
-    wpTickets: 161,
-    storewareTickets: 0,
-    xcloudTickets: 1,
-    wpCrisp: 326,
-    storewareCrisp: 92,
-    magicBrowser: 0,
-    xcloudCrisp: 8,
-    wpOrg: 10,
-    facebook: 3,
-    closed: null,
-  },
-];
-
-const chartOptions = {
-  chart: {
-    type: "area",
-    height: "100%",
-    toolbar: { show: false },
-  },
-  dataLabels: { enabled: true },
-  stroke: { curve: "straight" },
-  xaxis: {
-    categories: reportData.map((item) => item.month),
-    labels: { show: true },
-    axisBorder: { show: true },
-    axisTicks: { show: true },
-  },
-  yaxis: { show: true },
-  grid: { show: false },
-  tooltip: { enabled: true },
-  fill: {
-    type: "gradient",
-    gradient: {
-      shadeIntensity: 1,
-      opacityFrom: 0.7,
-      opacityTo: 0.9,
-      stops: [0, 90, 100],
-    },
-  },
-};
+// const reportData = [
+//   {
+//     month: "January",
+//     shopifyRequest: 16,
+//     shopifyReceived: 4,
+//     orgReviews: 3,
+//     wpTickets: 237,
+//     storewareTickets: 0,
+//     xcloudTickets: 4,
+//     wpCrisp: 358,
+//     storewareCrisp: 91,
+//     magicBrowser: 27,
+//     xcloudCrisp: 8,
+//     wpOrg: 2,
+//     facebook: 0,
+//     closed: 34,
+//   },
+//   {
+//     month: "February",
+//     shopifyRequest: 33,
+//     shopifyReceived: 11,
+//     orgReviews: 17,
+//     wpTickets: 191,
+//     storewareTickets: 0,
+//     xcloudTickets: 1,
+//     wpCrisp: 388,
+//     storewareCrisp: 127,
+//     magicBrowser: 18,
+//     xcloudCrisp: 15,
+//     wpOrg: 14,
+//     facebook: 0,
+//     closed: 16,
+//   },
+//   {
+//     month: "March",
+//     shopifyRequest: 3,
+//     shopifyReceived: 2,
+//     orgReviews: 9,
+//     wpTickets: 161,
+//     storewareTickets: 0,
+//     xcloudTickets: 1,
+//     wpCrisp: 326,
+//     storewareCrisp: 92,
+//     magicBrowser: 0,
+//     xcloudCrisp: 8,
+//     wpOrg: 10,
+//     facebook: 3,
+//     closed: null,
+//   },
+// ];
 
 const SupportReport = () => {
+  const { user } = useAuth();
+  const axiosSecure = useAxiosSecure();
   const [dateRange, setDateRange] = useState([null, null]);
   const [startDate, endDate] = dateRange;
+
+  const { data: reportData = [] } = useQuery({
+    queryKey: ["reportData"],
+    queryFn: async () => {
+      const res = await axiosSecure.get("workreports", {
+        params: { email: user.email },
+      });
+      return res.data;
+    },
+  });
+
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  // console.log("Report data from DB", reportData);
+
+  const chartOptions = {
+    chart: {
+      type: "area",
+      height: "100%",
+      toolbar: { show: false },
+    },
+    dataLabels: { enabled: true },
+    stroke: { curve: "straight" },
+    xaxis: {
+      // categories: reportData.map((item) => item.month),
+      categories: reportData.map((item) => item._id.month),
+      labels: { show: true },
+      axisBorder: { show: true },
+      axisTicks: { show: true },
+    },
+    yaxis: { show: true },
+    grid: { show: false },
+    tooltip: { enabled: true },
+    fill: {
+      type: "gradient",
+      gradient: {
+        shadeIntensity: 1,
+        opacityFrom: 0.7,
+        opacityTo: 0.9,
+        stops: [0, 90, 100],
+      },
+    },
+  };
 
   // Empty chart placeholder (preserves height)
   const loadingSeries = [
@@ -99,47 +132,47 @@ const SupportReport = () => {
   const chartSeriesInfos = [
     {
       name: "Shopify Review Request",
-      data: reportData.map((item) => item.shopifyRequest || 0),
+      data: reportData.map((item) => item.shopify_review_request || 0),
     },
     {
       name: "Shopify Review Received",
-      data: reportData.map((item) => item.shopifyReceived || 0),
+      data: reportData.map((item) => item.shopify_review_received || 0),
     },
     {
       name: ".ORG Reviews",
-      data: reportData.map((item) => item.orgReviews || 0),
+      data: reportData.map((item) => item.org_reviews || 0),
     },
     {
       name: "WPDeveloper Tickets",
-      data: reportData.map((item) => item.wpTickets || 0),
+      data: reportData.map((item) => item.wpdev_tickets || 0),
     },
     {
       name: "Storeware Tickets",
-      data: reportData.map((item) => item.storewareTickets || 0),
+      data: reportData.map((item) => item.storeware_tickets || 0),
     },
     {
       name: "xCloud Tickets",
-      data: reportData.map((item) => item.xcloudTickets || 0),
+      data: reportData.map((item) => item.xcloud_tickets || 0),
     },
     {
       name: "WPDeveloper Crisp",
-      data: reportData.map((item) => item.wpCrisp || 0),
+      data: reportData.map((item) => item.wpdev_crisp || 0),
     },
     {
       name: "Storeware Crisp",
-      data: reportData.map((item) => item.storewareCrisp || 0),
+      data: reportData.map((item) => item.storeware_crisp || 0),
     },
     {
       name: "Magic Browser Crisp",
-      data: reportData.map((item) => item.magicBrowser || 0),
+      data: reportData.map((item) => item.magic_browser_crisp || 0),
     },
     {
       name: "xCloud Crisp",
-      data: reportData.map((item) => item.xcloudCrisp || 0),
+      data: reportData.map((item) => item.xcloud_crisp || 0),
     },
     {
       name: "WordPress.ORG",
-      data: reportData.map((item) => item.wpOrg || 0),
+      data: reportData.map((item) => item.wporg_reply || 0),
     },
     {
       name: "Facebook",
@@ -147,108 +180,37 @@ const SupportReport = () => {
     },
     {
       name: "Tickets Closed",
-      data: reportData.map((item) => item.closed || 0),
+      data: reportData.map((item) => item.tickets_closed || 0),
     },
   ];
 
   const reviewsSeriesInfos = chartSeriesInfos.slice(0, 3);
   const ticketsChatsSeriesInfos = chartSeriesInfos.slice(3, 9);
 
-  // const [chartSeries, setChartSeries] = useState(chartSeriesInfos);
-  // const [reviewsSeries, setReviewsSeries] = useState(reviewsSeriesInfos);
-  // const [ticketsChartSeries, setTicketsChartSeries] = useState(
-  //   ticketsChatsSeriesInfos
-  // );
   const [loadingMain, setLoadingMain] = useState(true);
   const [loadingReviews, setLoadingReviews] = useState(true);
   const [loadingTickets, setLoadingTickets] = useState(true);
 
-  // const reviewsSeriesInfos = [
-  //   {
-  //     name: "Shopify Review Request",
-  //     data: reportData.map((item) => item.shopifyRequest || 0),
-  //   },
-  //   {
-  //     name: "Shopify Review Received",
-  //     data: reportData.map((item) => item.shopifyReceived || 0),
-  //   },
-  //   {
-  //     name: ".ORG Reviews",
-  //     data: reportData.map((item) => item.orgReviews || 0),
-  //   },
-  // ];
-
-  // const ticketsChatsSeriesInfos = [
-  //   {
-  //     name: "WPDeveloper Tickets",
-  //     data: reportData.map((item) => item.wpTickets || 0),
-  //   },
-  //   {
-  //     name: "Storeware Tickets",
-  //     data: reportData.map((item) => item.storewareTickets || 0),
-  //   },
-  //   {
-  //     name: "xCloud Tickets",
-  //     data: reportData.map((item) => item.xcloudTickets || 0),
-  //   },
-  //   {
-  //     name: "WPDeveloper Crisp",
-  //     data: reportData.map((item) => item.wpCrisp || 0),
-  //   },
-  //   {
-  //     name: "Storeware Crisp",
-  //     data: reportData.map((item) => item.storewareCrisp || 0),
-  //   },
-  //   {
-  //     name: "xCloud Crisp",
-  //     data: reportData.map((item) => item.xcloudCrisp || 0),
-  //   },
-  // ];
-
   useEffect(() => {
-    // if (!reportData || reportData.length === 0) return;
-
     setLoadingMain(true);
     setLoadingReviews(true);
     setLoadingTickets(true);
 
     // First: Load Reviews
     setTimeout(() => {
-      // setReviewsSeries(reviewsSeriesInfos);
       setLoadingReviews(false);
     }, 2000);
-    // const timerReviewChart = setTimeout(() => {
-    //   setReviewsSeries(reviewsSeriesInfos);
-    //   setLoadingReviews(false);
-    // }, 300);
 
     // Second: Load Chats & Tickets
     setTimeout(() => {
-      // setTicketsChartSeries(ticketsChatsSeriesInfos);
       setLoadingTickets(false);
     }, 2500);
-    // const timerTicketsChart = setTimeout(() => {
-    //   setTicketsChartSeries(ticketsChatsSeriesInfos);
-    //   setLoadingTickets(false);
-    // }, 500); // 300 + 200 delay
 
     // Third: Load All Matrix
     setTimeout(() => {
-      // setChartSeries(chartSeriesInfos);
       setLoadingMain(false);
     }, 3000);
-    // const timerMainChart = setTimeout(() => {
-    //   setChartSeries(chartSeriesInfos);
-    //   setLoadingMain(false);
-    // }, 700); // 500 + 200 delay
-
-    //   return () => {
-    //     clearTimeout(timerReviewChart);
-    //     clearTimeout(timerTicketsChart);
-    //     clearTimeout(timerMainChart);
-    //   };
   }, []);
-  // console.log("loadingReviews", loadingReviews);
 
   return (
     <div>
@@ -261,7 +223,7 @@ const SupportReport = () => {
             <Link to="/users">
               <TiArrowBack className="w-5 h-5 cursor-pointer" />
             </Link>
-            <span>Report by User</span>
+            <span>Report by User: {reportData.name}</span>
           </div>
           <div>
             <DatePicker
@@ -302,20 +264,22 @@ const SupportReport = () => {
             <tbody>
               {reportData.map((row, idx) => (
                 <tr key={idx} className="even:bg-gray-50">
-                  <td className="p-2 border">{row.month}</td>
-                  <td className="p-2 border">{row.shopifyRequest}</td>
-                  <td className="p-2 border">{row.shopifyReceived}</td>
-                  <td className="p-2 border">{row.orgReviews}</td>
-                  <td className="p-2 border">{row.wpTickets}</td>
-                  <td className="p-2 border">{row.storewareTickets}</td>
-                  <td className="p-2 border">{row.xcloudTickets}</td>
-                  <td className="p-2 border">{row.wpCrisp}</td>
-                  <td className="p-2 border">{row.storewareCrisp}</td>
-                  <td className="p-2 border">{row.magicBrowser}</td>
-                  <td className="p-2 border">{row.xcloudCrisp}</td>
-                  <td className="p-2 border">{row.wpOrg}</td>
+                  <td className="p-2 border">
+                    {monthNames[row._id.month - 1]}
+                  </td>
+                  <td className="p-2 border">{row.shopify_review_request}</td>
+                  <td className="p-2 border">{row.shopify_review_received}</td>
+                  <td className="p-2 border">{row.org_reviews}</td>
+                  <td className="p-2 border">{row.wpdev_tickets}</td>
+                  <td className="p-2 border">{row.storeware_tickets}</td>
+                  <td className="p-2 border">{row.xcloud_tickets}</td>
+                  <td className="p-2 border">{row.wpdev_crisp}</td>
+                  <td className="p-2 border">{row.storeware_crisp}</td>
+                  <td className="p-2 border">{row.magic_browser_crisp}</td>
+                  <td className="p-2 border">{row.xcloud_crisp}</td>
+                  <td className="p-2 border">{row.wporg_reply}</td>
                   <td className="p-2 border">{row.facebook}</td>
-                  <td className="p-2 border">{row.closed ?? "-"}</td>
+                  <td className="p-2 border">{row.tickets_closed}</td>
                 </tr>
               ))}
             </tbody>
