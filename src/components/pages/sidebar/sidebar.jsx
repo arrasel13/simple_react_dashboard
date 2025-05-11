@@ -10,7 +10,7 @@ import useAdmin from "../../../hooks/useadmin";
 
 const Sidebar = () => {
   const [isAdmin] = useAdmin();
-  console.log("Admin/ Super Admin: ", isAdmin);
+  // console.log("Admin/ Super Admin: ", isAdmin);
 
   return (
     <div>

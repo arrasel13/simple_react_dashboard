@@ -11,6 +11,8 @@ import SupportReport from "../components/pages/workreport/supportReport";
 import ErrorNotFound from "../components/pages/errorpage/404";
 import PrivateRoute from "./privateroute";
 import AdminRoute from "./adminroute";
+import ViewWorkUpdate from "../components/pages/workupdate/viewworkupdate";
+import EditWorkupdate from "../components/pages/workupdate/editworkupdate";
 
 const Routers = () => {
   return (
@@ -27,10 +29,14 @@ const Routers = () => {
         >
           <Route path="/" element={<Home />} />
           <Route path="/tasks" element={<TaskLists />} />
-          <Route path="/workUpdate" element={<WorkUpdate />} />
+          {/* <Route path="/workUpdate" element={<WorkUpdate />} /> */}
+          <Route path="/workUpdate">
+            <Route index element={<WorkUpdate />} />
+            <Route path=":id" element={<ViewWorkUpdate />} />
+            <Route path=":id/edit" element={<EditWorkupdate />} />
+          </Route>
+
           <Route path="/profile" element={<Profile />} />
-          {/* <Route path="/users" element={<AllUsers />} />
-          <Route path="/report" element={<SupportReport />} /> */}
           <Route
             path="/users"
             element={
@@ -40,7 +46,7 @@ const Routers = () => {
             }
           />
           <Route
-            path="/report"
+            path="/report/:email"
             element={
               <AdminRoute>
                 <SupportReport />

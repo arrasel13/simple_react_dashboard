@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router";
+import { Link, useParams } from "react-router";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import ReactApexChart from "react-apexcharts";
 import { TiArrowBack } from "react-icons/ti";
 import { useQuery } from "@tanstack/react-query";
 import useAxiosSecure from "../../../hooks/useaxiossecure";
-import useAuth from "../../../hooks/useauth";
 
 // const reportData = [
 //   {
@@ -60,7 +59,8 @@ import useAuth from "../../../hooks/useauth";
 // ];
 
 const SupportReport = () => {
-  const { user } = useAuth();
+  const { email } = useParams();
+  console.log("Email for support report: ", email);
   const axiosSecure = useAxiosSecure();
   const [dateRange, setDateRange] = useState([null, null]);
   const [startDate, endDate] = dateRange;
@@ -69,7 +69,7 @@ const SupportReport = () => {
     queryKey: ["reportData"],
     queryFn: async () => {
       const res = await axiosSecure.get("workreports", {
-        params: { email: user.email },
+        params: { email: email },
       });
       return res.data;
     },

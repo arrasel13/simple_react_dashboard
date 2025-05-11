@@ -11,7 +11,7 @@ const useAdmin = () => {
     enabled: tokenReady && !loading && !!user?.email,
     queryFn: async () => {
       const res = await axiosSecure.get(`/users/admin/${user.email}`);
-      console.log("From use Admin: ", res.data);
+      // console.log("From use Admin: ", res.data);
       return res.data?.admin;
     },
   });
