@@ -102,7 +102,8 @@ const SupportReport = () => {
     stroke: { curve: "straight" },
     xaxis: {
       // categories: reportData.map((item) => item.month),
-      categories: reportData.map((item) => item._id.month),
+      // categories: reportData.map((item) => item._id.month),
+      categories: reportData.map((item) => monthNames[item._id.month - 1]),
       labels: { show: true },
       axisBorder: { show: true },
       axisTicks: { show: true },
@@ -287,7 +288,7 @@ const SupportReport = () => {
         </div>
 
         {/* Reviews and Chat/Tickets Charts */}
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-2 gap-6 my-24">
           <div className="w-full h-64">
             <ReactApexChart
               options={{
@@ -314,7 +315,7 @@ const SupportReport = () => {
         </div>
 
         {/* Chart */}
-        <div className="w-full h-64">
+        <div className="w-full h-64 mb-12">
           <ReactApexChart
             options={{
               ...chartOptions,

@@ -8662,3 +8662,9 @@ span.flatpickr-weekday {
   /* blue-800 */
 }
 
+.react-datepicker__close-icon {
+  right: 2rem !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+}
+

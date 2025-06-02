@@ -3,7 +3,7 @@ import React from "react";
 const AddNewTask = () => {
   return (
     <>
-      <div class="fixed inset-0 h-full w-full bg-gray-400/60"></div>
+      <div className="fixed inset-0 h-full w-full bg-gray-400/60"></div>
       <div className="modal-box w-11/12 max-w-3xl">
         <h3 className="font-bold text-lg">Add New Task</h3>
         <p className="py-4">Click the button below to close</p>

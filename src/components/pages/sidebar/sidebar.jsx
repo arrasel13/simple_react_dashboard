@@ -95,6 +95,15 @@ const Sidebar = () => {
                       </li>
                       <li>
                         <NavLink
+                          to="/workreport"
+                          className="menu-item group menu-item-inactive"
+                        >
+                          <IoLayersSharp className="text-xl" />
+                          Work Report
+                        </NavLink>
+                      </li>
+                      <li>
+                        <NavLink
                           to="/integrations"
                           className="menu-item group menu-item-inactive"
                         >

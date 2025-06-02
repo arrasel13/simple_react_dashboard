@@ -13,6 +13,7 @@ import PrivateRoute from "./privateroute";
 import AdminRoute from "./adminroute";
 import ViewWorkUpdate from "../components/pages/workupdate/viewworkupdate";
 import EditWorkupdate from "../components/pages/workupdate/editworkupdate";
+import AddWorkUpdate from "../components/pages/workupdate/addworkupdate";
 
 const Routers = () => {
   return (
@@ -34,6 +35,7 @@ const Routers = () => {
             <Route index element={<WorkUpdate />} />
             <Route path=":id" element={<ViewWorkUpdate />} />
             <Route path=":id/edit" element={<EditWorkupdate />} />
+            <Route path="add" element={<AddWorkUpdate />} />
           </Route>
 
           <Route path="/profile" element={<Profile />} />
@@ -50,6 +52,14 @@ const Routers = () => {
             element={
               <AdminRoute>
                 <SupportReport />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/workreport"
+            element={
+              <AdminRoute>
+                <WorkReport />
               </AdminRoute>
             }
           />

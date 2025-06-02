@@ -1,139 +1,48 @@
-import { TiArrowBack } from "react-icons/ti";
-import { Link, useNavigate, useParams } from "react-router";
-import { useForm, Controller } from "react-hook-form";
+import { useState } from "react";
 import { format } from "date-fns";
 import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import { FaRegCalendarAlt } from "react-icons/fa";
-import { useEffect, useState } from "react";
+import { TiArrowBack } from "react-icons/ti";
+import { Link, useNavigate } from "react-router";
+import { FaCalendarAlt } from "react-icons/fa";
+import { Controller, useForm } from "react-hook-form";
 import useAxiosSecure from "../../../hooks/useaxiossecure";
-import { useQuery } from "@tanstack/react-query";
 import useAuth from "../../../hooks/useauth";
 import { showToast } from "../../utils/toasters/toastService";
 
-const EditWorkupdate = () => {
+const AddWorkUpdate = () => {
   const { user } = useAuth();
-  const { id } = useParams();
-  const navigate = useNavigate();
   const axiosSecure = useAxiosSecure();
-  const [date, setDate] = useState(null);
+  const navigate = useNavigate();
+  // const [startDate, setStartDate] = useState(new Date());
+  const [shopifyReview, setShopifyReview] = useState("0");
+  const [wpPluginReview, setWpPluginReview] = useState("0");
+  const [trustPilotReview, setTrustPilotReview] = useState("0");
   const {
     control,
     register,
-    watch,
-    setValue,
     handleSubmit,
     reset,
-    formState: { errors, isSubmitted },
+    formState: { errors },
   } = useForm();
 
-  const parseDate = (str) => {
-    if (!str) return null;
-    const [day, month, year] = str.split("-").map(Number);
-    return new Date(year, month - 1, day); // month is 0-indexed
-  };
-
-  const { data: singleReportData = [] } = useQuery({
-    queryKey: ["singleReportData"],
-    queryFn: async () => {
-      const res = await axiosSecure.get("/reportById", {
-        params: { id },
-      });
-      return res.data;
-    },
-  });
-
-  const shopifyReview = watch("shopify_app_review_get");
-  const wpPluginReview = watch("wporg_review_get");
-  const trustPilotReview = watch("trustpilot_review_get");
-
-  useEffect(() => {
-    if (!singleReportData) return;
-    const fieldMappings = {
-      report_date: singleReportData.report_date
-        ? parseDate(singleReportData.report_date)
-        : undefined,
-
-      wpdev_ticket_reply: singleReportData.wpdev_ticket_reply,
-      storeware_ticket_reply: singleReportData.storeware_ticket_reply,
-      xcloud_ticket_reply: singleReportData.xcloud_ticket_reply,
-      easyjobs_ticket_reply: singleReportData.easyjobs_ticket_reply,
-      userback_reply: singleReportData.userback_reply,
-      wpdev_crisp_reply: singleReportData.wpdev_crisp_reply,
-      wpdev_crisp_magic_browser_reply:
-        singleReportData.wpdev_crisp_magic_browser_reply,
-      storeware_crisp_reply: singleReportData.storeware_crisp_reply,
-      storeware_crisp_magic_browser_reply:
-        singleReportData.storeware_crisp_magic_browser_reply,
-      xcloud_crisp_reply: singleReportData.xcloud_crisp_reply,
-      xcloud_crisp_magic_browser_reply:
-        singleReportData.xcloud_crisp_magic_browser_reply,
-      wp_org_reply: singleReportData.wp_org_reply,
-      fb_post_reply: singleReportData.fb_post_reply,
-      github_reply: singleReportData.github_reply,
-      client_issue_card_create: singleReportData.client_issue_card_create,
-      client_issue_card_followup: singleReportData.client_issue_card_followup,
-      hs_ticket_close: singleReportData.hs_ticket_close,
-      hs_ticket_followup: singleReportData.hs_ticket_followup,
-      bulk_client_email_sent: singleReportData.bulk_client_email_sent,
-
-      shopify_app_review_req_send: singleReportData.shopify_app_review_req_send,
-      shopify_app_review_get:
-        singleReportData.shopify_app_review_get?.toString(),
-      shopify_app_review_links: singleReportData.shopify_app_review_links,
-
-      wporg_review_get: singleReportData.wporg_review_get?.toString(),
-      wporg_review_links: singleReportData.wporg_review_links,
-
-      trustpilot_review_get: singleReportData.trustpilot_review_get?.toString(),
-      trustpilot_review_links: singleReportData.trustpilot_review_links,
-
-      hs_ratings: singleReportData.hs_ratings,
-      crisp_ratings: singleReportData.crisp_ratings,
-
-      additional_notes: singleReportData.additional_notes,
-    };
-
-    Object.entries(fieldMappings).forEach(([key, value]) => {
-      if (value !== undefined) {
-        setValue(key, value);
-      }
-    });
-  }, [singleReportData, setValue]);
-
-  const onSubmit = async (updateData) => {
-    const formattedDate = format(updateData.report_date, "dd-MM-yyyy");
-    if (Number(updateData.shopify_app_review_get) === 0) {
-      updateData.shopify_app_review_links = "";
-    }
-    if (Number(updateData.wporg_review_get) === 0) {
-      updateData.wporg_review_links = "";
-    }
-    if (Number(updateData.trustpilot_review_get) === 0) {
-      updateData.trustpilot_review_links = "";
-    }
-
-    const newUpdateData = {
-      ...updateData,
+  const onSubmit = async (data) => {
+    const formattedDate = format(data.report_date, "dd-MM-yyyy");
+    const reportData = {
+      ...data,
       report_date: formattedDate,
       email: user.email,
+      name: user.displayName,
     };
 
-    const updateRes = await axiosSecure.patch(
-      `/updateworkreport/${id}`,
-      newUpdateData
-    );
-
-    if (updateRes.data.modifiedCount > 0 && updateRes.data.matchedCount > 0) {
-      showToast("success", "Work Report updated successfully");
+    const reportRes = await axiosSecure.post("/addreports", reportData);
+    // console.log(reportRes.data);
+    if (reportRes.data.insertedId) {
       reset();
       navigate("/workUpdate");
-    } else if (updateRes.data.matchedCount > 0) {
-      showToast("info", "No changes on your report");
-      reset();
-      navigate("/workUpdate");
+      showToast("success", "Work Report successfully added", { icon: "🎉" });
     }
-    console.log(updateRes.data);
+
+    // console.log("Submitted report data: ", reportData);
   };
 
   return (
@@ -145,49 +54,42 @@ const EditWorkupdate = () => {
             <Link to="/workUpdate">
               <TiArrowBack className="w-5 h-5 cursor-pointer" />
             </Link>
-            <span>Edit Work Update: {id}</span>
+            <span>Add Work Update</span>
           </div>
         </div>
 
-        {/* Edited Data */}
         <div>
-          <form
-            className="flex flex-col w-full"
-            method="dialog"
-            onSubmit={handleSubmit(onSubmit)}
-          >
+          <form onSubmit={handleSubmit(onSubmit)}>
             <div className="custom-scrollbar h-[72vh] overflow-y-auto px-2 py-4">
-              {/* <div className="flex flex-col gap-y-5"> */}
               <div className="grid grid-cols-2 gap-8">
-                {/* Date Picker */}
+                {/* Date Time picker */}
                 <div className="w-2/3 flex items-center gap-x-4 col-span-2">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-400">
                     Select Date
                   </label>
                   <div className="relative">
                     <Controller
-                      control={control}
                       name="report_date"
-                      defaultValue={date}
+                      control={control}
                       rules={{ required: true }}
                       render={({ field }) => (
                         <DatePicker
-                          selected={field.value}
-                          onChange={(date) => field.onChange(date)}
+                          placeholderText="dd-mm-yyyy"
                           dateFormat="dd-MM-yyyy"
-                          placeholderText="dd-MM-yyyy"
                           maxDate={new Date()}
                           isClearable
-                          className="border h-11 pl-10 pr-3 py-2 rounded text-sm focus:outline-none w-7/8"
+                          selected={field.value}
+                          onChange={(date) => field.onChange(date)}
+                          className="border h-11 pl-10 -pr-3 py-2 rounded text-sm focus:outline-none w-7/8"
+                          aria-invalid={errors.report_date ? "true" : "false"}
                         />
                       )}
                     />
-
-                    <FaRegCalendarAlt className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none" />
+                    <FaCalendarAlt className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none" />
                   </div>
-                  {errors.report_date?.type === "required" && isSubmitted && (
+                  {errors.report_date?.type === "required" && (
                     <p role="alert" className="text-red-500">
-                      ** Date is required
+                      This field is required
                     </p>
                   )}
                 </div>
@@ -753,6 +655,7 @@ const EditWorkupdate = () => {
                           aria-invalid={
                             errors.shopify_app_review_get ? "true" : "false"
                           }
+                          onChange={(e) => setShopifyReview(e.target.value)}
                           className="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                         >
                           {[...Array(11).keys()].map((val) => (
@@ -791,10 +694,11 @@ const EditWorkupdate = () => {
                       )}
                     </div>
 
+                    {/* {shopifyReview !== "0" && ( */}
                     <div>
                       <textarea
                         {...register("shopify_app_review_links", {
-                          required: shopifyReview !== "0",
+                          required: shopifyReview !== "0" ? true : false,
                         })}
                         aria-invalid={
                           errors.shopify_app_review_links ? "true" : "false"
@@ -810,6 +714,7 @@ const EditWorkupdate = () => {
                         </p>
                       )}
                     </div>
+                    {/* )} */}
                   </div>
 
                   {/* WP plugins review received */}
@@ -827,10 +732,15 @@ const EditWorkupdate = () => {
                           aria-invalid={
                             errors.wporg_review_get ? "true" : "false"
                           }
+                          onChange={(e) => setWpPluginReview(e.target.value)}
                           className="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                         >
                           {[...Array(11).keys()].map((val) => (
-                            <option key={val} value={val}>
+                            <option
+                              key={val}
+                              value={val}
+                              className="text-gray-700 dark:bg-gray-900 dark:text-gray-400"
+                            >
                               {val}
                             </option>
                           ))}
@@ -861,10 +771,11 @@ const EditWorkupdate = () => {
                       )}
                     </div>
 
+                    {/* {wpPluginReview !== "0" && ( */}
                     <div>
                       <textarea
                         {...register("wporg_review_links", {
-                          required: wpPluginReview !== "0",
+                          required: wpPluginReview !== "0" ? true : false,
                         })}
                         aria-invalid={
                           errors.wporg_review_links ? "true" : "false"
@@ -880,6 +791,7 @@ const EditWorkupdate = () => {
                         </p>
                       )}
                     </div>
+                    {/* )} */}
                   </div>
 
                   {/* TrustPilot Review received */}
@@ -896,6 +808,7 @@ const EditWorkupdate = () => {
                           aria-invalid={
                             errors.trustpilot_review_get ? "true" : "false"
                           }
+                          onChange={(e) => setTrustPilotReview(e.target.value)}
                           className="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                         >
                           {[...Array(11).keys()].map((val) => (
@@ -934,10 +847,11 @@ const EditWorkupdate = () => {
                       )}
                     </div>
 
+                    {/* {trustPilotReview !== "0" && ( */}
                     <div>
                       <textarea
                         {...register("trustpilot_review_links", {
-                          required: trustPilotReview !== "0",
+                          required: trustPilotReview !== "0" ? true : false,
                         })}
                         aria-invalid={
                           errors.trustpilot_review_links ? "true" : "false"
@@ -953,6 +867,7 @@ const EditWorkupdate = () => {
                         </p>
                       )}
                     </div>
+                    {/* )} */}
                   </div>
                 </div>
 
@@ -1039,7 +954,7 @@ const EditWorkupdate = () => {
                   type="submit"
                   className="btn flex justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 sm:w-auto"
                 >
-                  Update Work Update
+                  Add Work Update
                 </button>
               </div>
             </div>
@@ -1050,4 +965,4 @@ const EditWorkupdate = () => {
   );
 };
 
-export default EditWorkupdate;
+export default AddWorkUpdate;

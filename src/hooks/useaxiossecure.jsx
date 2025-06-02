@@ -32,7 +32,10 @@ const useAxiosSecure = () => {
       return response;
     },
     async (error) => {
-      const status = error.response.status;
+      const status = error?.response?.status;
+      if (status === 500) {
+        navigate("/");
+      }
       if (status === 401 || status === 403) {
         await logOut();
         // setErrorDetected(true);

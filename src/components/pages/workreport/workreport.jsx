@@ -1,30 +1,71 @@
 import React, { useEffect, useState } from "react";
 import BreadCrumb from "../common/breadcrumb";
-import { FaUserPlus } from "react-icons/fa6";
+import { FaRegEye, FaUserPlus } from "react-icons/fa6";
 import AddWorkUpdate from "../../utils/modals/addWorkUpdate";
 import { BsPersonWorkspace } from "react-icons/bs";
+import DatePicker from "react-datepicker";
+import { useQuery } from "@tanstack/react-query";
+import useAxiosSecure from "../../../hooks/useaxiossecure";
+import useAdmin from "../../../hooks/useadmin";
+import { Link } from "react-router";
+import { format } from "date-fns";
 
 const WorkReport = () => {
   useEffect(() => {
     document.title = "Work Report";
   }, []);
+  const [isAdmin] = useAdmin();
+  const [selectedDate, setSelectedDate] = useState();
+  const [selectedUser, setSelectedUser] = useState("");
+  const formattedDate = selectedDate ? format(selectedDate, "MM-yyyy") : "";
+  // const formattedDate = selectedDate
+  //   ? format(selectedDate, "MMMM yyyy") // "May 2025"
+  //   : "";
+  const axiosSecure = useAxiosSecure();
+  const { data: users = [] } = useQuery({
+    queryKey: ["users"],
+    queryFn: async () => {
+      const res = await axiosSecure.get("/users");
+      return res.data;
+    },
+  });
 
-  const tableData = [
-    { name: "Alice", age: 24, email: "alice@example.com" },
-    { name: "Bob", age: 30, email: "bob@example.com" },
-    { name: "Charlie", age: 28, email: "charlie@example.com" },
-    { name: "David", age: 22, email: "david@example.com" },
-    { name: "Eve", age: 35, email: "eve@example.com" },
-    { name: "Frank", age: 29, email: "frank@example.com" },
-    { name: "Grace", age: 26, email: "grace@example.com" },
-    { name: "Heidi", age: 31, email: "heidi@example.com" },
-  ];
+  const handleChange = (event) => {
+    setSelectedUser(event.target.value);
+    console.log("Selected user email:", event.target.value);
+  };
+
+  const { data: userReport = [] } = useQuery({
+    queryKey: ["userReport", selectedUser, formattedDate],
+    enabled: !!selectedUser,
+    queryFn: async () => {
+      const res = await axiosSecure.get("/reportsbyemail", {
+        params: {
+          email: selectedUser,
+          ...(formattedDate && { date: formattedDate }),
+        },
+      });
+      return res.data;
+    },
+  });
+  console.log("User report:", userReport);
+
+  // const tableData = [
+  //   { name: "Alice", age: 24, email: "alice@example.com" },
+  //   { name: "Bob", age: 30, email: "bob@example.com" },
+  //   { name: "Charlie", age: 28, email: "charlie@example.com" },
+  //   { name: "David", age: 22, email: "david@example.com" },
+  //   { name: "Eve", age: 35, email: "eve@example.com" },
+  //   { name: "Frank", age: 29, email: "frank@example.com" },
+  //   { name: "Grace", age: 26, email: "grace@example.com" },
+  //   { name: "Heidi", age: 31, email: "heidi@example.com" },
+  // ];
 
   const [globalFilter, setGlobalFilter] = useState("");
-  const [pageSize, setPageSize] = useState(5);
+  const [pageSize, setPageSize] = useState(31);
   const [pageIndex, setPageIndex] = useState(0);
 
-  const filteredData = tableData.filter(
+  const filteredData = userReport.filter(
     (item) =>
       item.name.toLowerCase().includes(globalFilter.toLowerCase()) ||
       item.email.toLowerCase().includes(globalFilter.toLowerCase())
@@ -43,6 +84,333 @@ const WorkReport = () => {
 
       <div className="space-y-6">
         <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white pt-4 dark:border-white/[0.05] dark:bg-white/[0.03]">
+          {/* <div className="flex flex-col gap-4 px-6 mb-4 sm:flex-row sm:items-center sm:justify-between"> */}
+          <div className="flex gap-4 w-full px-6 mb-4">
+            <div className="flex flex-col justify-center gap-1">
+              <label htmlFor="">Select User: </label>
+              <div className="">
+                <select
+                  value={selectedUser}
+                  onChange={handleChange}
+                  className="border h-11 pl-4 pr-8 rounded text-sm focus:outline-none w-[200px]"
+                >
+                  <option disabled value="">
+                    Select a User
+                  </option>
+                  {users
+                    .filter((user) => user.role === "agent")
+                    .map((user) => (
+                      <>
+                        <option key={user.email} value={user.email}>
+                          {user.name}
+                        </option>
+                      </>
+                    ))}
+                </select>
+              </div>
+            </div>
+            <div className="flex flex-col justify-center gap-1">
+              <label htmlFor="">Select Month Year: </label>
+              <div>
+                <DatePicker
+                  selected={selectedDate}
+                  onChange={(date) => setSelectedDate(date)}
+                  dateFormat="MM-yyyy"
+                  maxDate={new Date()}
+                  className="border h-11 pl-10 -pr-3 py-2 rounded text-sm focus:outline-none w-[200px]"
+                  showMonthYearPicker
+                  placeholderText="MM-YYYY"
+                  isClearable
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="px-6 mb-4 pt-8">
+            <div className="relative max-w-[1340px] mx-auto overflow-x-auto">
+              <table className="min-w-max w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                <thead className="bg-gray-50 dark:bg-gray-900">
+                  <tr>
+                    {/* S.N - sticky left */}
+                    {/* {["admin", "superadmin"].includes(reports.role) && ( */}
+                    {isAdmin && (
+                      <th className="sticky left-0 bg-gray-50 dark:bg-gray-700 px-6 py-3 font-medium text-gray-500 text-theme-xs dark:text-gray-400 text-start">
+                        Name
+                      </th>
+                    )}
+
+                    <th
+                      className={`sticky ${
+                        // ["admin", "superadmin"].includes(reports.role)
+                        isAdmin ? "left-20" : "left-0"
+                      } bg-gray-50 dark:bg-gray-700 px-6 py-3 font-medium text-gray-500 text-theme-xs dark:text-gray-400 text-start`}
+                    >
+                      Date
+                    </th>
+
+                    {/* Normal scrollable columns */}
+                    <th className="px-6 py-3">WPDev Tickets Replied</th>
+                    <th className="px-6 py-3">Storeware Tickets Replied</th>
+                    <th className="px-6 py-3">xCloud Tickets Replied</th>
+                    <th className="px-6 py-3">easy.jobs Tickets Replied</th>
+                    <th className="px-6 py-3">Userback Replied</th>
+                    <th className="px-6 py-3">WPDev CRISP Replied</th>
+                    <th className="px-6 py-3">
+                      WPDev CRISP (Magic Browser) Replied
+                    </th>
+                    <th className="px-6 py-3">Storeware CRISP Replied</th>
+                    <th className="px-6 py-3">
+                      Storeware CRISP (Magic Browser) Replied
+                    </th>
+                    <th className="px-6 py-3">xCloud CRISP Replied</th>
+                    <th className="px-6 py-3">
+                      xCloud CRISP (Magic Browser) Replied
+                    </th>
+                    <th className="px-6 py-3">WP Org Replied</th>
+                    <th className="px-6 py-3">Facebook Replied</th>
+                    <th className="px-6 py-3">Github Replied</th>
+                    <th className="px-6 py-3">Card Created</th>
+                    <th className="px-6 py-3">Card created Followup</th>
+                    <th className="px-6 py-3">HS Ticket Closed</th>
+                    <th className="px-6 py-3">HS Ticket Followup</th>
+                    <th className="px-6 py-3">Client Checkup Email</th>
+                    <th className="px-6 py-3">Shopify Review Request</th>
+                    <th className="px-6 py-3">Shopify Review Get</th>
+                    <th className="px-6 py-3">Shopify Review Links</th>
+                    <th className="px-6 py-3">WP Plugin Review Get</th>
+                    <th className="px-6 py-3">WP Plugin Review Links</th>
+                    <th className="px-6 py-3">TrustPilot Review Get</th>
+                    <th className="px-6 py-3">TrustPilot Review Links</th>
+                    <th className="px-6 py-3">HS Rating Get</th>
+                    <th className="px-6 py-3">CRISP Rating Get</th>
+                    <th className="px-6 py-3">Notes (others task info)</th>
+                  </tr>
+                </thead>
+
+                <tbody className="divide-y divide-gray-100 bg-white">
+                  {paginatedData?.length > 0 ? (
+                    paginatedData.map((row, idx) => (
+                      <tr key={idx} className="hover:bg-gray-50">
+                        {/* {["admin", "superadmin"].includes(reports.role) && ( */}
+                        {isAdmin && (
+                          <td className="sticky left-0 bg-white dark:bg-gray-900 px-4 sm:px-6 py-3.5">
+                            {row.name}
+                          </td>
+                        )}
+                        <td
+                          className={`sticky ${
+                            // ["admin", "superadmin"].includes(reports.role)
+                            isAdmin ? "left-20" : "left-0"
+                          } bg-white dark:bg-gray-900 px-4 sm:px-6 py-3.5`}
+                        >
+                          {row.report_date}
+                        </td>
+
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.wpdev_ticket_reply}
+                        </td>
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.storeware_ticket_reply}
+                        </td>
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.xcloud_ticket_reply}
+                        </td>
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.easyjobs_ticket_reply}
+                        </td>
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.userback_reply}
+                        </td>
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.wpdev_crisp_reply}
+                        </td>
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.wpdev_crisp_magic_browser_reply}
+                        </td>
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.storeware_crisp_reply}
+                        </td>
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.storeware_crisp_magic_browser_reply}
+                        </td>
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.xcloud_crisp_reply}
+                        </td>
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.xcloud_crisp_magic_browser_reply}
+                        </td>
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.wp_org_reply}
+                        </td>
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.fb_post_reply}
+                        </td>
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.github_reply}
+                        </td>
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.client_issue_card_create}
+                        </td>
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.client_issue_card_followup}
+                        </td>
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.hs_ticket_close}
+                        </td>
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.hs_ticket_followup}
+                        </td>
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.bulk_client_email_sent}
+                        </td>
+
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.shopify_app_review_req_send}
+                        </td>
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.shopify_app_review_get}
+                        </td>
+                        <td className="w-[220px] px-4 sm:px-6 py-3.5">
+                          {row.shopify_app_review_links ? (
+                            row.shopify_app_review_links
+                              .split(",")
+                              .map((review, index) => (
+                                <a
+                                  key={index}
+                                  href={review.trim()}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="block text-blue-600 underline"
+                                >
+                                  {review.trim()}
+                                </a>
+                              ))
+                          ) : (
+                            <span className="text-gray-400">
+                              No Review links
+                            </span>
+                          )}
+                        </td>
+
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.wporg_review_get}
+                        </td>
+                        <td className="w-[220px] px-4 sm:px-6 py-3.5">
+                          {row.wporg_review_links ? (
+                            row.wporg_review_links
+                              .split(",")
+                              .map((review, index) => (
+                                <Link
+                                  key={index}
+                                  to={review.trim()}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="block text-blue-600 underline"
+                                >
+                                  {review.trim()}
+                                </Link>
+                              ))
+                          ) : (
+                            <span className="text-gray-400">
+                              No Review links
+                            </span>
+                          )}
+                        </td>
+
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.trustpilot_review_get}
+                        </td>
+                        <td className="w-[220px] px-4 sm:px-6 py-3.5">
+                          {row.trustpilot_review_links ? (
+                            row.trustpilot_review_links
+                              .split(",")
+                              .map((review, index) => (
+                                <Link
+                                  key={index}
+                                  to={review.trim()}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="block text-blue-600 underline"
+                                >
+                                  {review.trim()}
+                                </Link>
+                              ))
+                          ) : (
+                            <span className="text-gray-400">
+                              No Review links
+                            </span>
+                          )}
+                        </td>
+
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.hs_ratings}
+                        </td>
+                        <td className=" px-4 sm:px-6 py-3.5">
+                          {row.crisp_ratings}
+                        </td>
+                        <td className="w-[350px] px-4 sm:px-6 py-3.5">
+                          {row.additional_notes}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="32" className="px-4 sm:px-6 py-3.5">
+                        No Work Update Data found
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Footer */}
+            <div className="flex flex-col gap-4 px-6 py-4 border-t border-gray-100 mt-4 sm:flex-row sm:items-center sm:justify-between">
+              {/* Page Size */}
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-600">Show:</span>
+                <select
+                  value={pageSize}
+                  onChange={(e) => {
+                    setPageSize(Number(e.target.value));
+                    setPageIndex(0); // reset to first page on size change
+                  }}
+                  className="btn font-normal border rounded text-sm select cursor-pointer focus:outline-none focus:ring-0 focus:border-gray-300"
+                >
+                  {[28, 29, 30, 31].map((size) => (
+                    <option key={size} value={size}>
+                      {size}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Pagination */}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setPageIndex((prev) => Math.max(prev - 1, 0))}
+                  disabled={pageIndex === 0}
+                  className="join-item btn px-3 py-1 text-sm bg-gray-200 rounded disabled:opacity-50 cursor-pointer"
+                >
+                  Previous
+                </button>
+                <button
+                  onClick={() =>
+                    setPageIndex((prev) => Math.min(prev + 1, totalPages - 1))
+                  }
+                  disabled={pageIndex >= totalPages - 1}
+                  className="join-item btn px-3 py-1 text-sm bg-gray-200 rounded disabled:opacity-50 cursor-pointer"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* <div className="space-y-6">
+        <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white pt-4 dark:border-white/[0.05] dark:bg-white/[0.03]">
           <div className="flex flex-col gap-4 px-6 mb-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
               <button
@@ -56,9 +424,9 @@ const WorkReport = () => {
               </button>
             </div>
 
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-              {/* <form> */}
-              <div class="relative">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center"> */}
+      {/* <form> */}
+      {/* <div class="relative">
                 <button class="absolute -translate-y-1/2 left-4 top-1/2">
                   <svg
                     class="fill-gray-500 dark:fill-gray-400"
@@ -86,16 +454,16 @@ const WorkReport = () => {
                     setPageIndex(0); // reset to first page on search
                   }}
                 />
-              </div>
-              {/* </form> */}
-            </div>
+              </div> */}
+      {/* </form> */}
+      {/* </div>
           </div>
 
-          <div>
-            {/* Header actions */}
+          <div> */}
+      {/* Header actions */}
 
-            {/* Table */}
-            <div className="max-w-full overflow-x-auto">
+      {/* Table */}
+      {/* <div className="max-w-full overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200 overflow-hidden">
                 <thead className="px-6 py-3.5 border-t border-gray-100 border-y bg-gray-50 dark:border-white/[0.05] dark:bg-gray-900">
                   <tr>
@@ -173,12 +541,12 @@ const WorkReport = () => {
                   ))}
                 </tbody>
               </table>
-            </div>
+            </div> */}
 
-            {/* Footer */}
-            <div className="flex flex-col gap-4 px-6 py-4 border-t border-gray-100 mt-4 sm:flex-row sm:items-center sm:justify-between">
-              {/* Page Size */}
-              <div className="flex items-center gap-2">
+      {/* Footer */}
+      {/* <div className="flex flex-col gap-4 px-6 py-4 border-t border-gray-100 mt-4 sm:flex-row sm:items-center sm:justify-between"> */}
+      {/* Page Size */}
+      {/* <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-600">Show:</span>
                 <select
                   value={pageSize}
@@ -194,10 +562,10 @@ const WorkReport = () => {
                     </option>
                   ))}
                 </select>
-              </div>
+              </div> */}
 
-              {/* Pagination */}
-              <div className="flex gap-2">
+      {/* Pagination */}
+      {/* <div className="flex gap-2">
                 <button
                   onClick={() => setPageIndex((prev) => Math.max(prev - 1, 0))}
                   disabled={pageIndex === 0}
@@ -218,7 +586,7 @@ const WorkReport = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       <dialog
         id="add_work_update"

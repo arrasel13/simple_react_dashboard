@@ -8,10 +8,13 @@ import useAuth from "../../../hooks/useauth";
 import { Link } from "react-router";
 import { FaRegEye } from "react-icons/fa6";
 import useAdmin from "../../../hooks/useadmin";
+import { showToast } from "../../utils/toasters/toastService";
+import { confirmAlert } from "react-confirm-alert";
+import "react-confirm-alert/src/react-confirm-alert.css"; // required
 
 const WorkUpdate = () => {
   const [isAdmin] = useAdmin();
-  console.log("Admin or super admin", isAdmin);
+  // console.log("Admin or super admin", isAdmin);
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
   useEffect(() => {
@@ -28,13 +31,13 @@ const WorkUpdate = () => {
     },
   });
 
-  console.log("Reports: ", reports);
+  // console.log("Reports: ", reports);
 
   const [globalFilter, setGlobalFilter] = useState("");
   const [pageSize, setPageSize] = useState(5);
   const [pageIndex, setPageIndex] = useState(0);
 
-  const filteredData = reports?.result?.filter(
+  const filteredData = reports?.filter(
     (item) =>
       item.name?.toLowerCase().includes(globalFilter.toLowerCase()) ||
       item.email?.toLowerCase().includes(globalFilter.toLowerCase())
@@ -48,7 +51,32 @@ const WorkUpdate = () => {
   const totalPages = Math.ceil(filteredData?.length / pageSize);
 
   const handleWorkUpdateDelete = (id) => {
-    console.log("Deleted ID: ", id);
+    // console.log("Deleted ID: ", id);
+    confirmAlert({
+      title: "Confirm to delete",
+      message: "Are you sure you want to delete this report?",
+      buttons: [
+        {
+          label: "Yes",
+          onClick: () => performDelete(id),
+        },
+        {
+          label: "No",
+        },
+      ],
+    });
+
+    const performDelete = async (id) => {
+      const deleteRes = await axiosSecure.delete("/deleteReportById", {
+        params: { id },
+      });
+      if (deleteRes.data.deletedCount > 0) {
+        showToast("success", "Report deleted successfully!");
+        refetch();
+      } else {
+        showToast("error", "Failed to delete the report.");
+      }
+    };
   };
 
   return (
@@ -59,15 +87,18 @@ const WorkUpdate = () => {
         <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white pt-4 dark:border-white/[0.05] dark:bg-white/[0.03]">
           <div className="flex flex-col gap-4 px-6 mb-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
-              <button
+              {/* <button
                 className="btn btn-soft btn-primary inline-flex items-center gap-2 rounded-lg px-4 py-3 text-theme-sm font-medium shadow-theme-xs hover:text-white dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
                 onClick={() =>
                   document.getElementById("add_work_update").showModal()
                 }
-              >
-                <GrWorkshop className="text-lg" />
-                Work Update
-              </button>
+              > */}
+              <Link to="add">
+                <button className="btn btn-soft btn-primary inline-flex items-center gap-2 rounded-lg px-4 py-3 text-theme-sm font-medium shadow-theme-xs hover:text-white dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200">
+                  <GrWorkshop className="text-lg" />
+                  Work Update
+                </button>
+              </Link>
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -114,7 +145,8 @@ const WorkUpdate = () => {
                 <thead className="bg-gray-50 dark:bg-gray-900">
                   <tr>
                     {/* S.N - sticky left */}
-                    {["admin", "superadmin"].includes(reports.role) && (
+                    {/* {["admin", "superadmin"].includes(reports.role) && ( */}
+                    {isAdmin && (
                       <th className="sticky left-0 bg-gray-50 dark:bg-gray-700 px-6 py-3 font-medium text-gray-500 text-theme-xs dark:text-gray-400 text-start">
                         Name
                       </th>
@@ -122,9 +154,8 @@ const WorkUpdate = () => {
 
                     <th
                       className={`sticky ${
-                        ["admin", "superadmin"].includes(reports.role)
-                          ? "left-20"
-                          : "left-0"
+                        // ["admin", "superadmin"].includes(reports.role)
+                        isAdmin ? "left-20" : "left-0"
                       } bg-gray-50 dark:bg-gray-700 px-6 py-3 font-medium text-gray-500 text-theme-xs dark:text-gray-400 text-start`}
                     >
                       Date
@@ -236,7 +267,7 @@ const WorkUpdate = () => {
                           {row.github_reply}
                         </td>
                         <td className=" px-4 sm:px-6 py-3.5">
-                          {row.client_issue_card}
+                          {row.client_issue_card_create}
                         </td>
                         <td className=" px-4 sm:px-6 py-3.5">
                           {row.client_issue_card_followup}
@@ -248,15 +279,15 @@ const WorkUpdate = () => {
                           {row.hs_ticket_followup}
                         </td>
                         <td className=" px-4 sm:px-6 py-3.5">
-                          {row.bulk_client_email}
+                          {row.bulk_client_email_sent}
                         </td>
+
                         <td className=" px-4 sm:px-6 py-3.5">
-                          {row.shopify_app_review}
+                          {row.shopify_app_review_req_send}
                         </td>
                         <td className=" px-4 sm:px-6 py-3.5">
                           {row.shopify_app_review_get}
                         </td>
-
                         <td className="w-[220px] px-4 sm:px-6 py-3.5">
                           {row.shopify_app_review_links ? (
                             row.shopify_app_review_links
@@ -278,6 +309,7 @@ const WorkUpdate = () => {
                             </span>
                           )}
                         </td>
+
                         <td className=" px-4 sm:px-6 py-3.5">
                           {row.wporg_review_get}
                         </td>
@@ -341,7 +373,7 @@ const WorkUpdate = () => {
                           <div className="flex items-center w-full gap-2">
                             {/* View */}
                             <Link to={`/workUpdate/${row._id}`}>
-                              <button className="text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white/90 cursor-pointer">
+                              <button className="text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white/90 cursor-pointer flex items-center">
                                 <FaRegEye className="text-xl" />
                                 {/* <svg
                                 width="1em"
@@ -363,7 +395,7 @@ const WorkUpdate = () => {
 
                             {/* Edit */}
                             <Link to={`/workUpdate/${row._id}/edit`}>
-                              <button className="text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white/90 cursor-pointer">
+                              <button className="text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white/90 cursor-pointer flex items-center">
                                 <svg
                                   width="1em"
                                   height="1em"
@@ -386,7 +418,7 @@ const WorkUpdate = () => {
                             {isAdmin && (
                               <button
                                 onClick={() => handleWorkUpdateDelete(row._id)}
-                                className="text-gray-500 hover:text-error-500 dark:text-gray-400 dark:hover:text-error-500 cursor-pointer"
+                                className="text-gray-500 hover:text-error-500 dark:text-gray-400 dark:hover:text-error-500 cursor-pointer flex items-center"
                               >
                                 <svg
                                   width="1em"

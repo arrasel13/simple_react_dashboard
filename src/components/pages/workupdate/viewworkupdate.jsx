@@ -3,22 +3,24 @@ import { TiArrowBack } from "react-icons/ti";
 import { Link, useParams } from "react-router";
 import useAxiosSecure from "../../../hooks/useaxiossecure";
 import { FaRegEdit } from "react-icons/fa";
+// import useAuth from "../../../hooks/useauth";
 
 const ViewWorkUpdate = () => {
   const { id } = useParams();
+  // const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
 
   const { data: singleReport = [] } = useQuery({
     queryKey: ["singleReport"],
     queryFn: async () => {
       const res = await axiosSecure.get("/reportById", {
-        params: { id: id },
+        params: { id },
       });
       return res.data;
     },
   });
 
-  console.log("Single Report Data: ", singleReport);
+  // console.log("Single Report Data: ", singleReport);
 
   return (
     <>
@@ -127,7 +129,7 @@ const ViewWorkUpdate = () => {
 
           <div className="flex gap-2 border p-2">
             <p className="font-semibold">Card Created:</p>
-            <span className="">{singleReport.client_issue_card}</span>
+            <span className="">{singleReport.client_issue_card_create}</span>
           </div>
 
           <div className="flex gap-2 border p-2">
@@ -147,12 +149,12 @@ const ViewWorkUpdate = () => {
 
           <div className="flex gap-2 border p-2">
             <p className="font-semibold">Client Checkup Email:</p>
-            <span className="">{singleReport.bulk_client_email}</span>
+            <span className="">{singleReport.bulk_client_email_sent}</span>
           </div>
 
           <div className="flex gap-2 border p-2">
             <p className="font-semibold">Shopify Review Request:</p>
-            <span className="">{singleReport.shopify_app_review}</span>
+            <span className="">{singleReport.shopify_app_review_req_send}</span>
           </div>
 
           <div className="flex gap-2 border p-2">
